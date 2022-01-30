@@ -28,9 +28,16 @@ export class Block {
   loadData(data, cat = ['save', 'local']) {
     cat.forEach(i => {
       try {
-        Object.assign(this.data[i], data[i]);
+        if(data[i]) Object.assign(this.data[i], data[i]);
       } catch {}
     });
+  }
+
+  loadSave(data) {
+    this.loadData({save: this.data.save})
+  }
+  getSavedData() {
+    return {save: this.data.save}
   }
 }
 

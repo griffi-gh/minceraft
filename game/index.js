@@ -8,7 +8,7 @@ export default class Game extends common.EventSource {
     super();
     
     // Create BlockTypeManager and load built in blocks
-    this.blocks = new BlockTypeManager().loadBuiltIn();
+    this.manager = new BlockTypeManager().loadBuiltIn();
 
     // Init scene
     this.scene = new THREE.Scene();
