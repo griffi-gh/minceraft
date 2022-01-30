@@ -1,8 +1,15 @@
 import './lib/three.js';
-import * as common from './common.js';
 
-export default class Game {
+import * as common from './common.js';
+import { BlockTypeManager } from './blocks.js';
+
+export default class Game extends common.EventSource {
   constructor() {
+    super();
+    
+    // Create BlockTypeManager and load built in blocks
+    this.blocks = new BlockTypeManager().loadBuiltIn();
+
     // Init scene
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -23,31 +30,35 @@ export default class Game {
     this.gameElement.appendChild(this.renderer.domElement);
 
     // Set up callbacks
-    const onAnimationFrame = () => {
-      this.render();
+    this.createEvents('render-pre', 'render', 'render-post', 'resize');
+
+    // Render callback
+    let ptime = 0;
+    const onAnimationFrame = time => {
+      const delta = time - ptime;
+      ptime = time;
+      this.triggerEvent('render-pre', delta);
+      this.triggerEvent('render', delta);
+      this.triggerEvent('render-post', delta);
+      this.render(delta); // render() MUST be called after events
       requestAnimationFrame(onAnimationFrame);
     };
     requestAnimationFrame(onAnimationFrame);
-    addEventListener('resize', () => {
-      this.resize(window.innerWidth, window.innerHeight);
-    });
 
-    // Test by adding a cube
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-    this._cube = new THREE.Mesh(geometry, material);
-    this.scene.add(this._cube);
-    this.camera.position.z = 5;
+    // Resize callback
+    addEventListener('resize', () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      this.triggerEvent('resize', w, h);
+    });
+    this.onEvent('resize', this.onResize.bind(this));
   }
-  resize(w, h) {
+  onResize(w, h) {
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
   }
-  render() {
-    this._cube.rotation.x += 0.01;
-		this._cube.rotation.y += 0.01;
-    this._cube.rotation.z += 0.01;
+  render(dt) {
     this.renderer.render(this.scene, this.camera);
   }
 }
