@@ -46,3 +46,12 @@ export function call(fn, ...args) {
   fn(...args);
   return fn;
 }
+
+export function random(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+// TODO replace
+export function randomStr(len) {
+  return random(0,parseInt('z'.repeat(len),36)).toString(36);
+}

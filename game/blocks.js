@@ -1,9 +1,12 @@
+import * as common from "./common.js";
 
 // Block class
 export class Block {
+  static name = 'null'
   static id = 'null';
-  get id() { return this.constructor.id; }
   static texture = ''; 
+  get name() { return this.constructor.name; }
+  get id() { return this.constructor.id; }
   get texture() { return this.constructor.texture; }
   //------------------------
   constructor() {
@@ -23,7 +26,6 @@ export class Block {
       local: {},
       save: {}
     };
-    this.blockuid = '0';
   }
   loadData(data, cat = ['save', 'local']) {
     cat.forEach(i => {
@@ -33,11 +35,12 @@ export class Block {
     });
   }
 
-  loadSave(data) {
-    this.loadData({save: this.data.save})
+  load(data) {
+    //data[0] is only used in chunk load function
+    this.loadData({save: data[1]});
   }
-  getSavedData() {
-    return {save: this.data.save}
+  save() {
+    return [this.id, this.data.save];
   }
 }
 
@@ -49,12 +52,13 @@ export class BlockTypeManager {
     this.typesById = {}
   }
   addType(type) {
-    if(!(type instanceof Block)) {
+    if(!(type.prototype instanceof Block)) {
       throw new Error('not a block',Block);
     }
     this.types.push(type);
     this.typesById[type.id] = type;
   }
+  getById(id) { return this.typesById[id]; }
   loadBuiltIn() {
     builtIn.forEach(v => this.addType(v));
     return this;
@@ -64,7 +68,8 @@ export class BlockTypeManager {
 // Built in blocks
 
 class GrassBlock extends Block {
-  static id = 'm-grass'
+  static name = 'Grass';
+  static id = 'game:grass';
   //todo texture
 }
 builtIn.push(GrassBlock);
