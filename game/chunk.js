@@ -44,7 +44,6 @@ export default class Chunk {
       return this.cachedMesh;
     }
     let vertices = [];
-    common.cubeVert(vertices,1,1,1,1,1,1,0,0,0);
     for (let x = 0; x < this.size; x++) {
       for (let y = 0; y < this.height; y++) {
         for (let z = 0; z < this.size; z++) {
