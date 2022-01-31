@@ -1,4 +1,5 @@
 import './lib/three.js';
+import Stats from './lib/stats.js';
 
 import * as common from './common.js';
 import { BlockTypeManager } from './blocks.js';
@@ -7,7 +8,7 @@ import World from './world.js';
 export default class Game extends common.EventSource {
   constructor() {
     super();
-    
+
     // Create BlockTypeManager and load built in blocks
     this.manager = new BlockTypeManager().loadBuiltIn();
 
@@ -24,12 +25,17 @@ export default class Game extends common.EventSource {
     // Init renderer and add it to DOM
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
-      //preserveDrawingBuffer: true,
+      preserveDrawingBuffer: true,
       powerPreference: 'high-performance'
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.domElement.classList.add('game-canvas');
     this.gameElement.appendChild(this.renderer.domElement);
+
+    // Init stats
+    this.stats = new Stats();
+    this.stats.showPanel(0);
+    this.gameElement.appendChild(this.stats.dom);
 
     // Set up callbacks
     this.createEvents('animation-frame', 'render-pre', 'render', 'render-post', 'resize');
@@ -37,6 +43,7 @@ export default class Game extends common.EventSource {
     // Render callback
     let ptime = 0;
     const onAnimationFrame = time => {
+      this.stats.begin();
       const delta = time - ptime;
       ptime = time;
       this.triggerEvent('animation-frame', delta);
@@ -45,6 +52,7 @@ export default class Game extends common.EventSource {
       this.triggerEvent('render-post', delta);
       this.render(delta); // render() MUST be called after events
       requestAnimationFrame(onAnimationFrame);
+      this.stats.end();
     };
     requestAnimationFrame(onAnimationFrame);
 
@@ -107,7 +115,7 @@ export default class Game extends common.EventSource {
       });
 
       this.camera.position.x += 3;
-      this.camera.position.y += 2;
+      this.camera.position.y += 6;
       this.camera.position.z += 5;
     }
   }
