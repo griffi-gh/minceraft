@@ -62,64 +62,64 @@ export const cubeVert = (pvert = [], front = true, right = true, back = true, le
 
   if(front){
     //front
-    vert.push({ pos: [-1, -1,  1], norm: [ 0,  0,  1], uv: [0, 0], });
-    vert.push({ pos: [ 1, -1,  1], norm: [ 0,  0,  1], uv: [1, 0], });
-    vert.push({ pos: [-1,  1,  1], norm: [ 0,  0,  1], uv: [0, 1], });
+    vert.push({ pos: [0, 0, 1], norm: [ 0,  0,  1], uv: [0, 0], });
+    vert.push({ pos: [1, 0, 1], norm: [ 0,  0,  1], uv: [1, 0], });
+    vert.push({ pos: [0, 1, 1], norm: [ 0,  0,  1], uv: [0, 1], });
     
-    vert.push({ pos: [-1,  1,  1], norm: [ 0,  0,  1], uv: [0, 1], });
-    vert.push({ pos: [ 1, -1,  1], norm: [ 0,  0,  1], uv: [1, 0], });
-    vert.push({ pos: [ 1,  1,  1], norm: [ 0,  0,  1], uv: [1, 1], });
+    vert.push({ pos: [0, 1, 1], norm: [ 0,  0,  1], uv: [0, 1], });
+    vert.push({ pos: [1, 0, 1], norm: [ 0,  0,  1], uv: [1, 0], });
+    vert.push({ pos: [1, 1, 1], norm: [ 0,  0,  1], uv: [1, 1], });
   }
   
   if(right) {
     // right
-    vert.push({ pos: [ 1, -1,  1], norm: [ 1,  0,  0], uv: [0, 0], });
-    vert.push({ pos: [ 1, -1, -1], norm: [ 1,  0,  0], uv: [1, 0], });
-    vert.push({ pos: [ 1,  1,  1], norm: [ 1,  0,  0], uv: [0, 1], });
+    vert.push({ pos: [1, 0, 1], norm: [ 1,  0,  0], uv: [0, 0], });
+    vert.push({ pos: [1, 0, 0], norm: [ 1,  0,  0], uv: [1, 0], });
+    vert.push({ pos: [1, 1, 1], norm: [ 1,  0,  0], uv: [0, 1], });
   
-    vert.push({ pos: [ 1,  1,  1], norm: [ 1,  0,  0], uv: [0, 1], });
-    vert.push({ pos: [ 1, -1, -1], norm: [ 1,  0,  0], uv: [1, 0], });
-    vert.push({ pos: [ 1,  1, -1], norm: [ 1,  0,  0], uv: [1, 1], });
+    vert.push({ pos: [1, 1, 1], norm: [ 1,  0,  0], uv: [0, 1], });
+    vert.push({ pos: [1, 0, 0], norm: [ 1,  0,  0], uv: [1, 0], });
+    vert.push({ pos: [1, 1, 0], norm: [ 1,  0,  0], uv: [1, 1], });
   }
   if(back) {
     // back
-    vert.push({ pos: [ 1, -1, -1], norm: [ 0,  0, -1], uv: [0, 0], });
-    vert.push({ pos: [-1, -1, -1], norm: [ 0,  0, -1], uv: [1, 0], });
-    vert.push({ pos: [ 1,  1, -1], norm: [ 0,  0, -1], uv: [0, 1], });
+    vert.push({ pos: [1, 0, 0], norm: [ 0,  0, -1], uv: [0, 0], });
+    vert.push({ pos: [0, 0, 0], norm: [ 0,  0, -1], uv: [1, 0], });
+    vert.push({ pos: [1, 1, 0], norm: [ 0,  0, -1], uv: [0, 1], });
   
-    vert.push({ pos: [ 1,  1, -1], norm: [ 0,  0, -1], uv: [0, 1], });
-    vert.push({ pos: [-1, -1, -1], norm: [ 0,  0, -1], uv: [1, 0], });
-    vert.push({ pos: [-1,  1, -1], norm: [ 0,  0, -1], uv: [1, 1], });
+    vert.push({ pos: [1, 1, 0], norm: [ 0,  0, -1], uv: [0, 1], });
+    vert.push({ pos: [0, 0, 0], norm: [ 0,  0, -1], uv: [1, 0], });
+    vert.push({ pos: [0, 1, 0], norm: [ 0,  0, -1], uv: [1, 1], });
   }
   if(left) {
     // left
-    vert.push({ pos: [-1, -1, -1], norm: [-1,  0,  0], uv: [0, 0], });
-    vert.push({ pos: [-1, -1,  1], norm: [-1,  0,  0], uv: [1, 0], });
-    vert.push({ pos: [-1,  1, -1], norm: [-1,  0,  0], uv: [0, 1], });
+    vert.push({ pos: [0, 0, 0], norm: [-1,  0,  0], uv: [0, 0], });
+    vert.push({ pos: [0, 0, 1], norm: [-1,  0,  0], uv: [1, 0], });
+    vert.push({ pos: [0, 1, 0], norm: [-1,  0,  0], uv: [0, 1], });
   
-    vert.push({ pos: [-1,  1, -1], norm: [-1,  0,  0], uv: [0, 1], });
-    vert.push({ pos: [-1, -1,  1], norm: [-1,  0,  0], uv: [1, 0], });
-    vert.push({ pos: [-1,  1,  1], norm: [-1,  0,  0], uv: [1, 1], });
+    vert.push({ pos: [0, 1, 0], norm: [-1,  0,  0], uv: [0, 1], });
+    vert.push({ pos: [0, 0, 1], norm: [-1,  0,  0], uv: [1, 0], });
+    vert.push({ pos: [0, 1, 1], norm: [-1,  0,  0], uv: [1, 1], });
   }
   if(top) {
     // top
-    vert.push({ pos: [ 1,  1, -1], norm: [ 0,  1,  0], uv: [0, 0], });
-    vert.push({ pos: [-1,  1, -1], norm: [ 0,  1,  0], uv: [1, 0], });
-    vert.push({ pos: [ 1,  1,  1], norm: [ 0,  1,  0], uv: [0, 1], });
+    vert.push({ pos: [1, 1, 0], norm: [ 0,  1,  0], uv: [0, 0], });
+    vert.push({ pos: [0, 1, 0], norm: [ 0,  1,  0], uv: [1, 0], });
+    vert.push({ pos: [1, 1, 1], norm: [ 0,  1,  0], uv: [0, 1], });
   
-    vert.push({ pos: [ 1,  1,  1], norm: [ 0,  1,  0], uv: [0, 1], });
-    vert.push({ pos: [-1,  1, -1], norm: [ 0,  1,  0], uv: [1, 0], });
-    vert.push({ pos: [-1,  1,  1], norm: [ 0,  1,  0], uv: [1, 1], });
+    vert.push({ pos: [1, 1, 1], norm: [ 0,  1,  0], uv: [0, 1], });
+    vert.push({ pos: [0, 1, 0], norm: [ 0,  1,  0], uv: [1, 0], });
+    vert.push({ pos: [0, 1, 1], norm: [ 0,  1,  0], uv: [1, 1], });
   }
   if(bottom) {
     // bottom
-    vert.push({ pos: [ 1, -1,  1], norm: [ 0, -1,  0], uv: [0, 0], });
-    vert.push({ pos: [-1, -1,  1], norm: [ 0, -1,  0], uv: [1, 0], });
-    vert.push({ pos: [ 1, -1, -1], norm: [ 0, -1,  0], uv: [0, 1], });
+    vert.push({ pos: [1, 0, 1], norm: [ 0, -1,  0], uv: [0, 0], });
+    vert.push({ pos: [0, 0, 1], norm: [ 0, -1,  0], uv: [1, 0], });
+    vert.push({ pos: [1, 0, 0], norm: [ 0, -1,  0], uv: [0, 1], });
   
-    vert.push({ pos: [ 1, -1, -1], norm: [ 0, -1,  0], uv: [0, 1], });
-    vert.push({ pos: [-1, -1,  1], norm: [ 0, -1,  0], uv: [1, 0], });
-    vert.push({ pos: [-1, -1, -1], norm: [ 0, -1,  0], uv: [1, 1], });
+    vert.push({ pos: [1, 0, 0], norm: [ 0, -1,  0], uv: [0, 1], });
+    vert.push({ pos: [0, 0, 1], norm: [ 0, -1,  0], uv: [1, 0], });
+    vert.push({ pos: [0, 0, 0], norm: [ 0, -1,  0], uv: [1, 1], });
   }
   for(const vertex of vert) {
     vertex.pos[0] += x;

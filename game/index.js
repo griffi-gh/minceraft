@@ -70,7 +70,7 @@ export default class Game extends common.EventSource {
         common.cubeVert(
           common.cubeVert([],1,1,1,1,0,1),
           1,1,1,1,1,0,
-          0,2,0
+          0,1,0
         )
       );
       //const geometry = common.buildGeom(common.cubeVert([], 1,1,1,1,0,1));
