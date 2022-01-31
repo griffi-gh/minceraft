@@ -1,4 +1,4 @@
-export function generateChunk(blocks, chunk, chunkX, chunkY) {
+export function generateChunk(blocks, chunk, chunkX, chunkZ) {
   const Grass = blocks.getById('grass');
   for (let x = 0; x < chunk.size; x++) {
     for (let z = 0; z < chunk.size; z++) {

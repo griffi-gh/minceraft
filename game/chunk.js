@@ -64,13 +64,14 @@ export default class Chunk {
         }
       }
     }
-    const material = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      /*wireframe: true,
-      wireframeLinewidth: 2,
-      side: THREE.DoubleSide,
-      flatShading: true,*/
+    const material = new THREE.MeshLambertMaterial({
+      color: 0x408040,
     });
+    /*const material = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      wireframe: true,
+      side: THREE.DoubleSide
+    });*/
     const geometry = common.buildGeom(vertices);
     const mesh = new THREE.Mesh(geometry, material);
     this.dirty = false;
@@ -86,10 +87,9 @@ export default class Chunk {
     return mesh.clone();
   }
 
-  generate(blocks, x, y) {
+  generate(blocks, x, z) {
     this.invalidateMesh();
-    generateChunk(blocks, this, x, y);
-    console.log(this.blocks)
+    generateChunk(blocks, this, x, z);
     return this;
   }
 

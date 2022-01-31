@@ -24,7 +24,7 @@ export default class Game extends common.EventSource {
     // Init renderer and add it to DOM
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
-      preserveDrawingBuffer: true,
+      //preserveDrawingBuffer: true,
       powerPreference: 'high-performance'
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -63,22 +63,27 @@ export default class Game extends common.EventSource {
     //DEBUG
     {
       // Add light source
-      const color = 0xFFFFFF;
-      const intensity = 1;
-      const light = new THREE.DirectionalLight(color, intensity);
-      light.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
-      this.scene.add(light);
-
-      //add helper
-      /*const helper = new THREE.CameraHelper(this.camera);
-      this.scene.add(helper);//*/
-
-      
-      //add orbit 
-      //const controls = new OrbitControls(this.camera, this.renderer.domElement);
+      {
+        const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+        hemiLight.position.set( 0, 500, 0 );
+        this.scene.add( hemiLight );
+        const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+        dirLight.position.set( -1, 0.75, 1 );
+        dirLight.position.multiplyScalar( 50);
+        this.scene.add( dirLight );
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = dirLight.shadow.mapSize.height = 2048;
+        const d = 300;
+        dirLight.shadow.camera.left = -d;
+        dirLight.shadow.camera.right = d;
+        dirLight.shadow.camera.top = d;
+        dirLight.shadow.camera.bottom = -d;
+        dirLight.shadow.camera.far = 3500;
+        dirLight.shadow.bias = -0.0001;
+      }
 
       //move camera on press
-      /*const btn = {};
+      const btn = {};
       document.body.addEventListener('keydown', event => {
         console.log(event.key)
         btn[event.key] = true;
@@ -86,40 +91,24 @@ export default class Game extends common.EventSource {
       document.body.addEventListener('keyup', event => {
         btn[event.key] = false;
       });
-      this.onEvent('animation-frame', () => {
-        if(btn.ArrowUp) this.camera.rotation.x += 0.1;
-        if(btn.ArrowDown) this.camera.rotation.x -= 0.1;
-        if(btn.ArrowLeft) this.camera.rotation.y += 0.1;
-        if(btn.ArrowRight) this.camera.rotation.y -= 0.1;
-        if(btn.e) this.camera.position.y += 0.1;
-      })*/
 
-      // Add cube
-      //const material = new THREE.MeshPhongMaterial( { color: 0x008800 } );
-      /*const material = new THREE.MeshStandardMaterial({
-        color: 0x008800,
-        wireframe: true,
-        wireframeLinewidth: 2,
-        side: THREE.DoubleSide,
-        flatShading: true,
+      let rx = 0;
+      let ry = 0;
+      this.onEvent('animation-frame', () => {
+        if(btn.a) rx += .1;
+        if(btn.d) rx -= .1;
+        if(btn.e) this.camera.position.y += 0.1;
+        if(btn.q) this.camera.position.y -= 0.1;
+        if(btn.w) this.camera.translateZ(-.2);
+        if(btn.s) this.camera.translateZ(.2);
+        this.camera.rotation.set(0,0,0)
+        this.camera.setRotationFromAxisAngle(new THREE.Vector3(0,1,0), rx)
+        //light.position.set(this.camera.x, this.camera.y, this.camera.z);
       });
 
-      const geometry = common.buildGeom(
-        common.cubeVert(
-          common.cubeVert([], 1,1,1,1,0,1, 0,0,0),
-          1,1,1,1,1,0,
-          0,1,0
-        )
-      );
-      //const geometry = common.buildGeom(common.cubeVert([], 1,1,1,1,0,1));
-
-      const cube = new THREE.Mesh(geometry, material);
-      this.scene.add( cube );
       this.camera.position.x += 3;
       this.camera.position.y += 2;
       this.camera.position.z += 5;
-      this.camera.rotation.x -= .1;
-      this.camera.rotation.y += .33;*/
     }
   }
   onResize(w, h) {

@@ -15,7 +15,7 @@ export default class World {
     if(this.loadedChunks.length) return;
     this.loadedChunks.push({
       chunk: new Chunk(this.chunkSize, this.chunkHeight).generate(blocks, 0, 0),
-      x: 0, y: 0,
+      x: 0, z: 0,
     });
     this.updateLoadedChunkMeshes(scene);
 
