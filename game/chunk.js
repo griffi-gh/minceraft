@@ -56,7 +56,7 @@ export default class Chunk {
               !this.getBlock(x, y, z-1), //back;  negative-z-side
               !this.getBlock(x-1, y, z), //left;  negative-x-side
               !this.getBlock(x, y+1, z), //top;   positive-y-side
-              !this.getBlock(x, y-1, z), //left;  negative-y-side
+              !this.getBlock(x, y-1, z), //bottom;  negative-y-side
               x, y, z
             );
           }
