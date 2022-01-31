@@ -6,8 +6,11 @@ import { BlockTypeManager } from './blocks.js';
 import World from './world.js';
 
 export default class Game extends common.EventSource {
-  constructor() {
+  constructor(options = {}) {
     super();
+
+    // Default options
+    options.renderDist = options.renderDist ?? 2;
 
     // Create BlockTypeManager and load built in blocks
     this.manager = new BlockTypeManager().loadBuiltIn();
@@ -89,7 +92,7 @@ export default class Game extends common.EventSource {
 
     //Create a new world
     this.world = new World({});
-    this.world.updateLoadedChunks(this.scene, this.manager, 0, 0, 1);
+    this.world.updateLoadedChunks(this.scene, this.manager, 0, 0, options.renderDist);
 
     //move camera on press
     //TODO vertical rotation
@@ -130,7 +133,8 @@ export default class Game extends common.EventSource {
         if(wupd) {
           this.world.updateLoadedChunks(
             this.scene, this.manager, 
-            this.camera.position.x, this.camera.position.z, 1
+            this.camera.position.x, this.camera.position.z,
+            options.renderDist
           );
         }
       });

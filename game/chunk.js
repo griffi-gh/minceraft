@@ -127,6 +127,6 @@ export default class Chunk {
   }
 
   dispose() {
-    if(this.cachedMesh) this.cachedMesh.dispose;
+    if(this.cachedMesh) this.cachedMesh.dispose();
   }
 }
