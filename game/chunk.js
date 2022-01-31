@@ -87,9 +87,9 @@ export default class Chunk {
     return mesh.clone();
   }
 
-  generate(blocks, x, z) {
+  generate(blocks, x, z, seed) {
     this.invalidateMesh();
-    generateChunk(blocks, this, x, z);
+    generateChunk(blocks, this, x, z, seed);
     return this;
   }
 

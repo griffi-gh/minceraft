@@ -15,7 +15,30 @@ export default class Game extends common.EventSource {
     // Init scene
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    this.camera.position.x += 3;
+    this.camera.position.y += 20;
+    this.camera.position.z += 5;
     this.scene.add(this.camera);
+
+    // Add light source
+    {
+      const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+      hemiLight.position.set( 0, 500, 0 );
+      this.scene.add( hemiLight );
+      const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+      dirLight.position.set( -1, 0.75, 1 );
+      dirLight.position.multiplyScalar( 50);
+      this.scene.add( dirLight );
+      dirLight.castShadow = true;
+      dirLight.shadow.mapSize.width = dirLight.shadow.mapSize.height = 2048;
+      const d = 300;
+      dirLight.shadow.camera.left = -d;
+      dirLight.shadow.camera.right = d;
+      dirLight.shadow.camera.top = d;
+      dirLight.shadow.camera.bottom = -d;
+      dirLight.shadow.camera.far = 3500;
+      dirLight.shadow.bias = -0.0001;
+    }
 
     // Init game root DOM element
     this.gameElement = document.createElement('div');
@@ -68,29 +91,10 @@ export default class Game extends common.EventSource {
     this.world = new World({});
     this.world.updateLoadedChunks(this.scene, this.manager, 0, 0, 2);
 
-    //DEBUG
+    //move camera on press
+    //TODO vertical rotation
+    //TODO KB events
     {
-      // Add light source
-      {
-        const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
-        hemiLight.position.set( 0, 500, 0 );
-        this.scene.add( hemiLight );
-        const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-        dirLight.position.set( -1, 0.75, 1 );
-        dirLight.position.multiplyScalar( 50);
-        this.scene.add( dirLight );
-        dirLight.castShadow = true;
-        dirLight.shadow.mapSize.width = dirLight.shadow.mapSize.height = 2048;
-        const d = 300;
-        dirLight.shadow.camera.left = -d;
-        dirLight.shadow.camera.right = d;
-        dirLight.shadow.camera.top = d;
-        dirLight.shadow.camera.bottom = -d;
-        dirLight.shadow.camera.far = 3500;
-        dirLight.shadow.bias = -0.0001;
-      }
-
-      //move camera on press
       const btn = {};
       document.body.addEventListener('keydown', event => {
         console.log(event.key)
@@ -99,7 +103,6 @@ export default class Game extends common.EventSource {
       document.body.addEventListener('keyup', event => {
         btn[event.key] = false;
       });
-
       let rx = 0;
       let ry = 0;
       this.onEvent('animation-frame', () => {
@@ -111,13 +114,11 @@ export default class Game extends common.EventSource {
         if(btn.s) this.camera.translateZ(.2);
         this.camera.rotation.set(0,0,0)
         this.camera.setRotationFromAxisAngle(new THREE.Vector3(0,1,0), rx)
-        //light.position.set(this.camera.x, this.camera.y, this.camera.z);
       });
-
-      this.camera.position.x += 3;
-      this.camera.position.y += 6;
-      this.camera.position.z += 5;
     }
+
+    //DEBUG
+    {}
   }
   onResize(w, h) {
     this.camera.aspect = w / h;
