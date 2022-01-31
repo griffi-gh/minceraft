@@ -31,13 +31,14 @@ export default class Game extends common.EventSource {
     this.gameElement.appendChild(this.renderer.domElement);
 
     // Set up callbacks
-    this.createEvents('render-pre', 'render', 'render-post', 'resize');
+    this.createEvents('animation-frame', 'render-pre', 'render', 'render-post', 'resize');
 
     // Render callback
     let ptime = 0;
     const onAnimationFrame = time => {
       const delta = time - ptime;
       ptime = time;
+      this.triggerEvent('animation-frame', delta);
       this.triggerEvent('render-pre', delta);
       this.triggerEvent('render', delta);
       this.triggerEvent('render-post', delta);
@@ -71,10 +72,25 @@ export default class Game extends common.EventSource {
       const helper = new THREE.CameraHelper(this.camera);
       this.scene.add(helper);
 
+      //add orbit 
+      //const controls = new OrbitControls(this.camera, this.renderer.domElement);
+
       //move camera on press
-      document.body.addEventListener('keypress', event => {
-        console.log(event);
-      })
+      /*const btn = {};
+      document.body.addEventListener('keydown', event => {
+        console.log(event.key)
+        btn[event.key] = true;
+      });
+      document.body.addEventListener('keyup', event => {
+        btn[event.key] = false;
+      });
+      this.onEvent('animation-frame', () => {
+        if(btn.ArrowUp) this.camera.rotation.x += 0.1;
+        if(btn.ArrowDown) this.camera.rotation.x -= 0.1;
+        if(btn.ArrowLeft) this.camera.rotation.y += 0.1;
+        if(btn.ArrowRight) this.camera.rotation.y -= 0.1;
+        if(btn.e) this.camera.position.y += 0.1;
+      })*/
 
       // Add cube
       //const material = new THREE.MeshPhongMaterial( { color: 0x008800 } );
