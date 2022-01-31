@@ -41,7 +41,10 @@ export default class World {
           const az = iz + z;
           if(seen[`${ax}$${az}`]) continue;
           this.loadedChunks.push({
-            chunk: new Chunk(this.chunkSize, this.chunkHeight).generate(blocks, ax, az, this.seed),
+            chunk: new Chunk(this.chunkSize, this.chunkHeight).generate(
+              blocks, ax * this.chunkSize, az * this.chunkSize, 
+              this.seed
+            ),
             x: ax, z: az,
           });
         }
