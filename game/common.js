@@ -58,6 +58,7 @@ export function randomStr(len) {
 
 //TODO
 export const cubeVert = (pvert = [], front = true, right = true, back = true, left = true, top = true, bottom = true, x = 0, y = 0, z = 0) => {
+  if((front + right + back + left + top + bottom) < 1) return;
   const vert = [];
 
   if(front){

@@ -69,7 +69,7 @@ export class BlockTypeManager {
 
 class GrassBlock extends Block {
   static name = 'Grass';
-  static id = 'game:grass';
+  static id = 'grass';
   //todo texture
 }
 builtIn.push(GrassBlock);

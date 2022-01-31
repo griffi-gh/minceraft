@@ -2,6 +2,7 @@ import './lib/three.js';
 
 import * as common from './common.js';
 import { BlockTypeManager } from './blocks.js';
+import World from './world.js';
 
 export default class Game extends common.EventSource {
   constructor() {
@@ -53,11 +54,31 @@ export default class Game extends common.EventSource {
     });
     this.onEvent('resize', this.onResize.bind(this));
 
+    //Create a new world
+    this.world = new World({});
+    this.world.updateLoadedChunks(this.scene, this.manager, 0, 0, 2);
+
     //DEBUG
     {
+      // Add light source
+      const color = 0xFFFFFF;
+      const intensity = 1;
+      const light = new THREE.DirectionalLight(color, intensity);
+      light.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
+      this.scene.add(light);
+
+      //add helper
+      const helper = new THREE.CameraHelper(this.camera);
+      this.scene.add(helper);
+
+      //move camera on press
+      document.body.addEventListener('keypress', event => {
+        console.log(event);
+      })
+
       // Add cube
       //const material = new THREE.MeshPhongMaterial( { color: 0x008800 } );
-      
+      /** 
       const material = new THREE.MeshStandardMaterial({
         color: 0x008800,
         wireframe: true,
@@ -82,12 +103,7 @@ export default class Game extends common.EventSource {
       this.camera.position.z += 5;
       this.camera.rotation.x -= .1;
       this.camera.rotation.y += .33;
-      // Add light source
-      const color = 0xFFFFFF;
-      const intensity = 1;
-      const light = new THREE.DirectionalLight(color, intensity);
-      light.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
-      this.scene.add(light);
+      */
     }
   }
   onResize(w, h) {
