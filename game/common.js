@@ -139,20 +139,21 @@ export function buildGeom(vert) {
     normals.push(...vertex.norm);
     uvs.push(...vertex.uv);
   }
-
   const geometry = new THREE.BufferGeometry();
   const positionNumComponents = 3;
   const normalNumComponents = 3;
   const uvNumComponents = 2;
   geometry.setAttribute(
-      'position',
-      new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents));
+    'position',
+    new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents)
+  );
   geometry.setAttribute(
-      'normal',
-      new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
+    'normal',
+    new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents)
+  );
   geometry.setAttribute(
-      'uv',
-      new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
-
+    'uv',
+    new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents)
+  );
   return geometry;
 }

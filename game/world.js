@@ -47,6 +47,7 @@ export default class World {
       scene.add(mesh);
       this.sceneMeshes.push(mesh);
     });
+    //scene.add(new THREE.BoxHelper(this.sceneMeshes[0], 0xffff00));
   }
   //todo
   save() {}

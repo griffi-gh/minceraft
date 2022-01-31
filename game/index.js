@@ -14,6 +14,7 @@ export default class Game extends common.EventSource {
     // Init scene
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    this.scene.add(this.camera);
 
     // Init game root DOM element
     this.gameElement = document.createElement('div');
@@ -69,9 +70,10 @@ export default class Game extends common.EventSource {
       this.scene.add(light);
 
       //add helper
-      const helper = new THREE.CameraHelper(this.camera);
-      this.scene.add(helper);
+      /*const helper = new THREE.CameraHelper(this.camera);
+      this.scene.add(helper);//*/
 
+      
       //add orbit 
       //const controls = new OrbitControls(this.camera, this.renderer.domElement);
 
@@ -94,8 +96,7 @@ export default class Game extends common.EventSource {
 
       // Add cube
       //const material = new THREE.MeshPhongMaterial( { color: 0x008800 } );
-      /** 
-      const material = new THREE.MeshStandardMaterial({
+      /*const material = new THREE.MeshStandardMaterial({
         color: 0x008800,
         wireframe: true,
         wireframeLinewidth: 2,
@@ -105,7 +106,7 @@ export default class Game extends common.EventSource {
 
       const geometry = common.buildGeom(
         common.cubeVert(
-          common.cubeVert([],1,1,1,1,0,1),
+          common.cubeVert([], 1,1,1,1,0,1, 0,0,0),
           1,1,1,1,1,0,
           0,1,0
         )
@@ -118,8 +119,7 @@ export default class Game extends common.EventSource {
       this.camera.position.y += 2;
       this.camera.position.z += 5;
       this.camera.rotation.x -= .1;
-      this.camera.rotation.y += .33;
-      */
+      this.camera.rotation.y += .33;*/
     }
   }
   onResize(w, h) {
