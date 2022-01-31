@@ -12,36 +12,51 @@ export default class World {
     this.seed = common.randomStr(16);
   }
   //TODO
-  updateLoadedChunks(scene, blocks, x, z, renderDist){
-    if(this.loadedChunks.length) return;
-    this.loadedChunks.push({
-      chunk: new Chunk(this.chunkSize, this.chunkHeight).generate(blocks, 0, 0, this.seed),
-      x: 0, z: 0,
-    });
-    this.updateLoadedChunkMeshes(scene);
+  updateLoadedChunks(scene, blocks, xPos, zPos, renderDist, force){
+    const x = Math.floor(xPos / this.chunkSize);
+    const z = Math.floor(zPos / this.chunkSize);
+    if((this.pX === x) && (this.pZ === z)) return;  
+    console.log('Moved to ' + x + ',' + z)
+    this.pX = x;
+    this.pZ = z;
 
-    /*
-    // unload and get seen
-    this.seen = {};
-    this.loadedChunks = this.loadedChunks.filter(v => {
-      const keep = !((Math.abs(v.x - x) > renderDist) || (Math.abs(v.y - y) > renderDist));
-      if(keep) this.seen[`${v.x}$${v.y}`] = v;
-      return keep;
-    });
-    for(let x = 0; x < renderDist; x++) {
-      for(let z = 0; z < renderDist; z++) {
-        const element = array[index];
-      }
+    const seen = {};
+    let changed = false;
+    if(this.loadedChunks.length) {
+      this.loadedChunks = this.loadedChunks.filter(v => {
+        const keep = !((Math.abs(v.x - x) > renderDist) || (Math.abs(v.z - z) > renderDist));
+        if(keep) {
+          seen[`${v.x}$${v.z}`] = true;
+        } else {
+          changed = true;
+          if(v.dispose) v.dispose();
+        }
+        return keep;
+      });
     }
-    this.updateLoadedChunkMeshes(scene); */
+    if(changed || (!this.loadedChunks.length)) {
+      for(let ix = -renderDist; ix <= renderDist; ix++) {
+        for(let iz = -renderDist; iz <= renderDist; iz++) {
+          const ax = ix + x;
+          const az = iz + z;
+          if(seen[`${ax}$${az}`]) continue;
+          this.loadedChunks.push({
+            chunk: new Chunk(this.chunkSize, this.chunkHeight).generate(blocks, ax, az, this.seed),
+            x: ax, z: az,
+          });
+        }
+      }
+      this.updateLoadedChunkMeshes(scene);
+    }
   }
   updateLoadedChunkMeshes(scene) {
     this.sceneMeshes.forEach(v => {
       scene.remove(v);
-      v.dispose();
+      if(v.dispose) v.dispose();
     });
     this.loadedChunks.forEach(v => {
       const mesh = v.chunk.buildMesh();
+      mesh.position.set(this.chunkSize * v.x, 0, this.chunkSize * v.z);
       scene.add(mesh);
       this.sceneMeshes.push(mesh);
     });

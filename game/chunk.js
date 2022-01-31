@@ -73,7 +73,7 @@ export default class Chunk {
     });*/
     const geometry = common.buildGeom(vertices);
     const mesh = new THREE.Mesh(geometry, material);
-    this.dirty = false;
+    this.meshInvalidated = false;
     if(this.cachedMesh) {
       try {
         this.cachedMesh.dispose();

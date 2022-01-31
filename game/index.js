@@ -89,7 +89,7 @@ export default class Game extends common.EventSource {
 
     //Create a new world
     this.world = new World({});
-    this.world.updateLoadedChunks(this.scene, this.manager, 0, 0, 2);
+    this.world.updateLoadedChunks(this.scene, this.manager, 0, 0, 1);
 
     //move camera on press
     //TODO vertical rotation
@@ -106,14 +106,33 @@ export default class Game extends common.EventSource {
       let rx = 0;
       let ry = 0;
       this.onEvent('animation-frame', () => {
+        let wupd;
         if(btn.a) rx += .1;
         if(btn.d) rx -= .1;
-        if(btn.e) this.camera.position.y += 0.1;
-        if(btn.q) this.camera.position.y -= 0.1;
-        if(btn.w) this.camera.translateZ(-.2);
-        if(btn.s) this.camera.translateZ(.2);
+        if(btn.e) {
+          this.camera.position.y += 0.1;
+          wupd = true;
+        }
+        if(btn.q) {
+          this.camera.position.y -= 0.1;
+          wupd = true;
+        }
+        if(btn.w) {
+          this.camera.translateZ(-.2);
+          wupd = true;
+        }
+        if(btn.s) {
+          this.camera.translateZ(.2);
+          wupd = true;
+        }
         this.camera.rotation.set(0,0,0)
-        this.camera.setRotationFromAxisAngle(new THREE.Vector3(0,1,0), rx)
+        this.camera.setRotationFromAxisAngle(new THREE.Vector3(0,1,0), rx);
+        if(wupd) {
+          this.world.updateLoadedChunks(
+            this.scene, this.manager, 
+            this.camera.position.x, this.camera.position.z, 1
+          );
+        }
       });
     }
 
