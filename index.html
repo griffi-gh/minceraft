@@ -11,10 +11,28 @@
     import Game from './game/index.js'
     document.addEventListener('DOMContentLoaded', () => {
       globalThis.game = new Game();
+      try {
+        document.getElementById('load').remove();
+      } catch(_){}
     });
   </script>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+    }
+    h1 {
+      text-align: center;
+      font-family: 'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'Arial', sans-serif;
+    }
+    :is(span, noscript) + #load {display: none;}
+  </style>
 </head>
 <body>
-  
+  <noscript>
+    <h1>This game requires JavaScript to run</h1>
+  </noscript>
+  <h1 id="load">Loading...</h1>
 </body>
 </html>

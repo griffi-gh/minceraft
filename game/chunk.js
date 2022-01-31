@@ -27,7 +27,8 @@ export default class Chunk {
   }
   
   buildMesh() {
-
+    
+    
   }
 
   save() {
