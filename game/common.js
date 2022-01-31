@@ -57,7 +57,7 @@ export function randomStr(len) {
 }
 
 //TODO
-export const buildCubeMesh = (front = true, right = true, back = true, left = true, top = true, bottom = true) => {
+export const cubeVert = (pvert = [], front = true, right = true, back = true, left = true, top = true, bottom = true, x = 0, y = 0, z = 0) => {
   const vert = [];
 
   if(front){
@@ -121,6 +121,15 @@ export const buildCubeMesh = (front = true, right = true, back = true, left = tr
     vert.push({ pos: [-1, -1,  1], norm: [ 0, -1,  0], uv: [1, 0], });
     vert.push({ pos: [-1, -1, -1], norm: [ 0, -1,  0], uv: [1, 1], });
   }
+  for(const vertex of vert) {
+    vertex.pos[0] += x;
+    vertex.pos[1] += y;
+    vertex.pos[2] += z;
+    pvert.push(vertex);
+  }
+  return pvert;
+}
+export function buildGeom(vert) {
   const positions = [];
   const normals = [];
   const uvs = [];

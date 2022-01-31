@@ -56,8 +56,26 @@ export default class Game extends common.EventSource {
     //DEBUG
     {
       // Add cube
-      const material = new THREE.MeshPhongMaterial( { color: 0x008800 } );
-      const cube = new THREE.Mesh( common.buildCubeMesh(1,1,1,1,0,1), material );
+      //const material = new THREE.MeshPhongMaterial( { color: 0x008800 } );
+      
+      const material = new THREE.MeshStandardMaterial({
+        color: 0x008800,
+        wireframe: true,
+        wireframeLinewidth: 2,
+        side: THREE.DoubleSide,
+        flatShading: true,
+      });
+
+      const geometry = common.buildGeom(
+        common.cubeVert(
+          common.cubeVert([],1,1,1,1,0,1),
+          1,1,1,1,1,0,
+          0,2,0
+        )
+      );
+      //const geometry = common.buildGeom(common.cubeVert([], 1,1,1,1,0,1));
+
+      const cube = new THREE.Mesh(geometry, material);
       this.scene.add( cube );
       this.camera.position.x += 3;
       this.camera.position.y += 2;
