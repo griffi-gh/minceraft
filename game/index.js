@@ -52,6 +52,25 @@ export default class Game extends common.EventSource {
       this.triggerEvent('resize', w, h);
     });
     this.onEvent('resize', this.onResize.bind(this));
+
+    //DEBUG
+    {
+      // Add cube
+      const material = new THREE.MeshBasicMaterial( { color: 0x008800 } );
+      const cube = new THREE.Mesh( common.buildCubeMesh(), material );
+      this.scene.add( cube );
+      this.camera.position.x += 3;
+      this.camera.position.y += 2;
+      this.camera.position.z += 5;
+      this.camera.rotation.x -= .1;
+      this.camera.rotation.y += .33;
+      // Add light source
+      const color = 0xFFFFFF;
+      const intensity = 1;
+      const light = new THREE.DirectionalLight(color, intensity);
+      light.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
+      this.scene.add(light);
+    }
   }
   onResize(w, h) {
     this.camera.aspect = w / h;

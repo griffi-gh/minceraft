@@ -56,54 +56,8 @@ export function randomStr(len) {
   return random(0,parseInt('z'.repeat(len),36)).toString(36);
 }
 
-
-//UNUNSED CRAP
-//TODO REMOVE
-
-/*
-{
-  {
-    const color = 0xFFFFFF;
-    const intensity = 1;
-    const light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(-1, 2, 4);
-    this.scene.add(light);
-  }
-  const vertices = common.buildCubeMesh();
-  const positions = [];
-  const normals = [];
-  const uvs = [];
-  for (const vertex of vertices) {
-    positions.push(...vertex.pos);
-    normals.push(...vertex.norm);
-    uvs.push(...vertex.uv);
-  }
-  const geometry = new THREE.BufferGeometry();
-  const positionNumComponents = 3;
-  const normalNumComponents = 3;
-  const uvNumComponents = 2;
-  geometry.setAttribute(
-      'position',
-      new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents));
-  geometry.setAttribute(
-      'normal',
-      new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
-  geometry.setAttribute(
-      'uv',
-      new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
-  const makeInstance = (geometry, x) => {
-    const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-
-    const cube = new THREE.Mesh(geometry, material);
-    this.scene.add(cube);
-
-    cube.position.x = x;
-    return cube;
-  }
-  makeInstance(geometry, 0);
-  this.camera.position.z = 5;
-}s
-export const buildCubeMesh = (x, y, z, front, right, back, left, top, bottom) => {
+//TODO
+export const buildCubeMesh = (front = true, right = true, back = true, left = true, top = true, bottom = true) => {
   const vert = [];
 
   if(front){
@@ -167,6 +121,28 @@ export const buildCubeMesh = (x, y, z, front, right, back, left, top, bottom) =>
     vert.push({ pos: [-1, -1,  1], norm: [ 0, -1,  0], uv: [1, 0], });
     vert.push({ pos: [-1, -1, -1], norm: [ 0, -1,  0], uv: [1, 1], });
   }
-  return vert;
+  const positions = [];
+  const normals = [];
+  const uvs = [];
+  for (const vertex of vert) {
+    positions.push(...vertex.pos);
+    normals.push(...vertex.norm);
+    uvs.push(...vertex.uv);
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  const positionNumComponents = 3;
+  const normalNumComponents = 3;
+  const uvNumComponents = 2;
+  geometry.setAttribute(
+      'position',
+      new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents));
+  geometry.setAttribute(
+      'normal',
+      new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
+  geometry.setAttribute(
+      'uv',
+      new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
+
+  return geometry;
 }
-*/
