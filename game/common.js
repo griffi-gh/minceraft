@@ -56,6 +56,19 @@ export function randomStr(len) {
   return random(0,parseInt('z'.repeat(len),36)).toString(36);
 }
 
+export class GeometryCubeBuilder {
+  constructor() {
+    this.pos = [];
+    this.norm = [];
+    this.uv = [];
+    this.indexes = [];
+  }
+  addCube(sides, position) {
+    
+  }
+}
+
+
 //TODO
 export const cubeVert = (pvert = [], front = true, right = true, back = true, left = true, top = true, bottom = true, x = 0, y = 0, z = 0) => {
   if((front + right + back + left + top + bottom) < 1) return;
