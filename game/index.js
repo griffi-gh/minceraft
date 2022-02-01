@@ -119,31 +119,17 @@ export default class Game extends common.EventSource {
         let wupd;
         if(btn.a) rx += .1;
         if(btn.d) rx -= .1;
-        if(btn.e) {
-          this.camera.position.y += 0.1;
-          wupd = true;
-        }
-        if(btn.q) {
-          this.camera.position.y -= 0.1;
-          wupd = true;
-        }
-        if(btn.w) {
-          this.camera.translateZ(-.2);
-          wupd = true;
-        }
-        if(btn.s) {
-          this.camera.translateZ(.2);
-          wupd = true;
-        }
+        if(btn.e) this.camera.position.y += 0.1;
+        if(btn.q) this.camera.position.y -= 0.1;
+        if(btn.w) this.camera.translateZ(btn.Shift ? -1000 : -.2);
+        if(btn.s) this.camera.translateZ(btn.Shift ? 320000 : .2);
         this.camera.rotation.set(0,0,0)
         this.camera.setRotationFromAxisAngle(new THREE.Vector3(0,1,0), rx);
-        if(wupd) {
-          this.world.updateLoadedChunks(
-            this.scene, this.manager, 
-            this.camera.position.x, this.camera.position.z,
-            this.options.renderDist
-          );
-        }
+        this.world.updateLoadedChunks(
+          this.scene, this.manager, 
+          this.camera.position.x, this.camera.position.z,
+          this.options.renderDist
+        );
       });
     }
 

@@ -9,6 +9,7 @@ export default class Chunk {
     const rHght = new Array(height).fill();
     this.blocks = rSize.map(() => rHght.map(() => rSize.map(() => null)));
     this.invalidateMesh();
+    this._builder = new common.VoxelGeometryBuilder();
   }
 
   isInRange(x, y, z) {
@@ -21,6 +22,9 @@ export default class Chunk {
       this.blocks[x][y][z] = block ?? null;
     }
     this.invalidateMesh();
+  }
+  fastGetBlock(x,y,z) {
+    return this.blocks[x][y][z];
   }
   getBlock(x, y, z) {
     if(this.isInRange(x, y, z)) {
@@ -43,22 +47,21 @@ export default class Chunk {
       console.log('cached');
       return this.cachedMesh;
     }
-    let vertices = [];
+    const builder = this._builder;
+    builder.reset();
     for (let x = 0; x < this.size; x++) {
       for (let y = 0; y < this.height; y++) {
         for (let z = 0; z < this.size; z++) {
-          const here = this.getBlock(x,y,z);
+          const here = this.fastGetBlock(x,y,z);
           if(here != null) {
-            common.cubeVert(
-              vertices,
-              !this.getBlock(x, y, z+1), //front; positive-z-side
-              !this.getBlock(x+1, y, z), //right; positive-x-side
-              !this.getBlock(x, y, z-1), //back;  negative-z-side
-              !this.getBlock(x-1, y, z), //left;  negative-x-side
-              !this.getBlock(x, y+1, z), //top;   positive-y-side
-              !this.getBlock(x, y-1, z), //bottom;  negative-y-side
-              x, y, z
-            );
+            builder.put(x, y, z, {
+              front: !this.getBlock(x, y, z+1),   //front; positive-z-side
+              right: !this.getBlock(x+1, y, z),   //right; positive-x-side
+              back: !this.getBlock(x, y, z-1),    //back;  negative-z-side
+              left: !this.getBlock(x-1, y, z),    //left;  negative-x-side
+              top: !this.getBlock(x, y+1, z),     //top;   positive-y-side
+              bottom: !this.getBlock(x, y-1, z),  //bottom;  negative-y-side
+            });
           }
         }
       }
@@ -71,7 +74,7 @@ export default class Chunk {
       wireframe: true,
       side: THREE.DoubleSide
     });*/
-    const geometry = common.buildGeom(vertices);
+    const geometry = builder.build();
     const mesh = new THREE.Mesh(geometry, material);
     this.meshInvalidated = false;
     if(this.cachedMesh) {
