@@ -72,7 +72,7 @@ export default class Chunk {
       }
     }
     const material = new THREE.MeshLambertMaterial({
-      color: 0x408040,
+      color: 0xffffff,
       map: atlas
     });
     /*const material = new THREE.MeshBasicMaterial({

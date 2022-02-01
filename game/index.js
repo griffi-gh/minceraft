@@ -8,13 +8,13 @@ import World from './world.js';
 export default class Game extends common.EventSource {
   constructor(_options = {}) {
     super();
-
     // Default options
     this.options = {}
     this.options.renderDist = _options.renderDist ?? 2;
     this.options.chunkSize = _options.chunkSize ?? 32;
     this.options.chunkHeight = _options.chunkHeight ?? 128;
-
+  }
+  async init() {
     // Create BlockTypeManager and load built in blocks
     this.manager = new BlockTypeManager().loadBuiltIn();
 
@@ -29,12 +29,20 @@ export default class Game extends common.EventSource {
 
     // Load atlas
     this.textures = {};
-    new THREE.TextureLoader().load(
-      TEX_URL,
-      texture => {
-        this.textures.atlas = texture;
-      }
-    );
+    await new Promise((resolve, reject) => {
+      new THREE.TextureLoader().load(
+        TEX_URL,
+        texture => {
+          this.textures.atlas = texture;
+          resolve();
+        }, undefined, reject
+      );
+    });
+    //this.textures.atlas.anisotropy = 0;
+    this.textures.atlas.magFilter = THREE.NearestFilter;
+    this.textures.atlas.minFilter = THREE.NearestFilter;
+    this.textures.atlas.premultiplyAlpha = true;
+    this.textures.atlas.generateMipmaps = true;
 
     // Add light source
     {

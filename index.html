@@ -10,10 +10,11 @@
   <script type="module">
     import Game from './game/index.js'
     document.addEventListener('DOMContentLoaded', () => {
-      globalThis.game = new Game();
-      try {
-        document.getElementById('load').remove();
-      } catch(_){}
+      globalThis.game = new Game().init().then(() => {
+        try {
+          document.getElementById('load').remove();
+        } catch(_){}
+      });
     });
   </script>
   <style>

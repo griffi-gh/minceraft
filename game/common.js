@@ -58,10 +58,14 @@ export function randomStr(len) {
 
 export function uv(x,y,w,h) {
   return [
-    x * w, y * h,             // 0,0
-    (x + 1) * w, y * h,       // 1,0
-    x * w, (y + 1) * h,       // 0,1
-    (x + 1) * w, (y + 1) * h  // 1,1
+    x * w,
+    1 - ((y + 1) * h), // 0,0
+    (x + 1) * w,
+    1 - ((y + 1) * h), // 1,0
+    x * w,
+    1 - (y * h),       // 0,1
+    (x + 1) * w,
+    1 - (y * h),       // 1,1
   ]
 }
 
@@ -88,6 +92,7 @@ export class VoxelGeometryBuilder {
   }
   put(x, y, z, sides, uv) {
     //todo custom uvs
+    debugger;
     if(sides.front) {
       this.pos.push(x,y,z+1, x+1,y,z+1, x,y+1,z+1, x+1,y+1,z+1);
       this.norm.push(0,0,1, 0,0,1, 0,0,1, 0,0,1);
