@@ -2,7 +2,7 @@ import './lib/three.js';
 import Stats from './lib/stats.js';
 
 import * as common from './common.js';
-import { BlockTypeManager } from './blocks.js';
+import { BlockTypeManager, TEX_URL } from './blocks.js';
 import World from './world.js';
 
 export default class Game extends common.EventSource {
@@ -26,6 +26,15 @@ export default class Game extends common.EventSource {
     this.camera.position.y += 20;
     this.camera.position.z += 5;
     this.scene.add(this.camera);
+
+    // Load atlas
+    this.textures = {};
+    new THREE.TextureLoader().load(
+      TEX_URL,
+      texture => {
+        this.textures.atlas = texture;
+      }
+    );
 
     // Add light source
     {
@@ -98,8 +107,10 @@ export default class Game extends common.EventSource {
     this.world = new World({
       chunkSize: this.options.chunkSize,
       chunkHeight: this.options.chunkHeight,
-    });
-    this.world.updateLoadedChunks(this.scene, this.manager, 0, 0, this.options.renderDist);
+    }).updateLoadedChunks(
+      this.scene, this.manager, 0, 0, 
+      this.options.renderDist, this.textures.atlas
+    );
 
     //move camera on press
     //TODO vertical rotation
@@ -128,7 +139,7 @@ export default class Game extends common.EventSource {
         this.world.updateLoadedChunks(
           this.scene, this.manager, 
           this.camera.position.x, this.camera.position.z,
-          this.options.renderDist
+          this.options.renderDist, this.textures.atlas
         );
       });
     }

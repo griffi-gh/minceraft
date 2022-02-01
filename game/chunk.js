@@ -41,7 +41,12 @@ export default class Chunk {
     this.invalidateMesh();
     return this.buildMesh();
   }
-  buildMesh() {
+
+  buildMeshWorker() {
+    
+  }
+
+  buildMesh(atlas) {
     console.log('buildMesh');
     if((!this.meshInvalidated) && this.cachedMesh) {
       console.log('cached');
@@ -55,19 +60,20 @@ export default class Chunk {
           const here = this.fastGetBlock(x,y,z);
           if(here != null) {
             builder.put(x, y, z, {
-              front: !this.getBlock(x, y, z+1),   //front; positive-z-side
-              right: !this.getBlock(x+1, y, z),   //right; positive-x-side
-              back: !this.getBlock(x, y, z-1),    //back;  negative-z-side
-              left: !this.getBlock(x-1, y, z),    //left;  negative-x-side
-              top: !this.getBlock(x, y+1, z),     //top;   positive-y-side
-              bottom: !this.getBlock(x, y-1, z),  //bottom;  negative-y-side
-            });
+              front:  !this.getBlock(x, y, z+1), //front; positive-z-side
+              right:  !this.getBlock(x+1, y, z), //right; positive-x-side
+              back:   !this.getBlock(x, y, z-1), //back;  negative-z-side
+              left:   !this.getBlock(x-1, y, z), //left;  negative-x-side
+              top:    !this.getBlock(x, y+1, z), //top;   positive-y-side
+              bottom: !this.getBlock(x, y-1, z), //bottom;  negative-y-side
+            }, here.uv);
           }
         }
       }
     }
     const material = new THREE.MeshLambertMaterial({
       color: 0x408040,
+      map: atlas
     });
     /*const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,

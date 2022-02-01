@@ -56,6 +56,15 @@ export function randomStr(len) {
   return random(0,parseInt('z'.repeat(len),36)).toString(36);
 }
 
+export function uv(x,y,w,h) {
+  return [
+    x * w, y * h,             // 0,0
+    (x + 1) * w, y * h,       // 1,0
+    x * w, (y + 1) * h,       // 0,1
+    (x + 1) * w, (y + 1) * h  // 1,1
+  ]
+}
+
 export class VoxelGeometryBuilder {
   constructor() {
     this.pos = [];
@@ -70,50 +79,78 @@ export class VoxelGeometryBuilder {
     this.uv.length = 0;
     this.indexes.length = 0;
     this.idxPtr = 0;
+    return this;
   }
   _pushIndexes() {
     const i = this.idxPtr;
     this.indexes.push(i,i+1,i+2,i+2,i+1,i+3);
     this.idxPtr += 4;
   }
-  put(x, y, z, sides) {
+  put(x, y, z, sides, uv) {
     //todo custom uvs
     if(sides.front) {
       this.pos.push(x,y,z+1, x+1,y,z+1, x,y+1,z+1, x+1,y+1,z+1);
       this.norm.push(0,0,1, 0,0,1, 0,0,1, 0,0,1);
-      this.uv.push(0,0, 1,0, 0,1, 1,1);  
+      this.uv.push.apply(this.uv, uv.front);  
       this._pushIndexes();
     }
     if(sides.right) {
       this.pos.push(x+1,y,z+1, x+1,y,z, x+1,y+1,z+1, x+1,y+1,z);
       this.norm.push(1,0,0, 1,0,0, 1,0,0, 1,0,0);
-      this.uv.push(0,0, 1,0, 0,1, 1,1);
+      this.uv.push.apply(this.uv, uv.right);  
       this._pushIndexes();
     }
     if(sides.back) {
       this.pos.push(x+1,y,z, x,y,z, x+1,y+1,z, x,y+1,z);
       this.norm.push(0,0,-1, 0,0,-1, 0,0,-1, 0,0,-1);
-      this.uv.push(0,0, 1,0, 0,1, 1,1);
+      this.uv.push.apply(this.uv, uv.back);  
       this._pushIndexes();
     }
     if(sides.left) {
       this.pos.push(x,y,z, x,y,z+1, x,y+1,z, x,y+1,z+1);
       this.norm.push(-1,0,0, -1,0,0, -1,0,0, -1,0,0);
-      this.uv.push(0,0, 1,0, 0,1, 1,1);
+      this.uv.push.apply(this.uv, uv.left);  
       this._pushIndexes();
     }
     if(sides.top) {
       this.pos.push(x+1,y+1,z, x,y+1,z, x+1,y+1,z+1, x,y+1,z+1);
       this.norm.push(0,1,0, 0,1,0, 0,1,0, 0,1,0);
-      this.uv.push(0,0, 1,0, 0,1, 1,1);
+      this.uv.push.apply(this.uv, uv.top); 
       this._pushIndexes();
     }
     if(sides.bottom) {
       this.pos.push(x+1,y,z+1, x,y,z+1, x+1,y,z, x,y,z);
       this.norm.push(0,-1,0, 0,-1,0, 0,-1,0, 0,-1,0);
-      this.uv.push(0,0, 1,0, 0,1, 1,1);
+      this.uv.push.apply(this.uv, uv.bottom); 
       this._pushIndexes();
     }
+    return this;
+  }
+  getTransferrableData() {
+    const transArray = [
+      this.pos.length,
+      this.norm.length, 
+      this.uv.length,
+      this.indexes.length
+    ];
+    transArray.push.apply(transArray, this.pos);
+    transArray.push.apply(transArray, this.norm);
+    transArray.push.apply(transArray, this.uv);
+    transArray.push.apply(transArray, this.indexes);
+    return new Uint32Array(transArray);
+  }
+  loadTransferredData(data) {
+    const arr = new Array(data);
+    const posLength = arr.shift();
+    const normLength = arr.shift();
+    const uvLength = arr.shift();
+    const indexesLength = arr.shift();
+    this.pos = arr.splice(0, posLength);
+    this.norm = arr.splice(0, normLength);
+    this.uv = arr.splice(0, uvLength);
+    this.indexes = arr.splice(0, indexesLength);
+    if(arr.length) console.warn('Leftover data');
+    return this;
   }
   build() {
     const geometry = new THREE.BufferGeometry();

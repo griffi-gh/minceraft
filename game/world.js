@@ -12,7 +12,7 @@ export default class World {
     this.seed = common.randomStr(16);
   }
   //TODO
-  updateLoadedChunks(scene, blocks, xPos, zPos, renderDist, force){
+  updateLoadedChunks(scene, blocks, xPos, zPos, renderDist, atlas, force){
     const x = Math.floor(xPos / this.chunkSize);
     const z = Math.floor(zPos / this.chunkSize);
     if((this.pX === x) && (this.pZ === z)) return;  
@@ -49,16 +49,17 @@ export default class World {
           });
         }
       }
-      this.updateLoadedChunkMeshes(scene);
+      this.updateLoadedChunkMeshes(scene, atlas);
     }
+    return this;
   }
-  updateLoadedChunkMeshes(scene) {
+  updateLoadedChunkMeshes(scene, atlas) {
     this.sceneMeshes.forEach(v => {
       scene.remove(v);
       if(v.dispose) v.dispose();
     });
     this.loadedChunks.forEach(v => {
-      const mesh = v.chunk.buildMesh();
+      const mesh = v.chunk.buildMesh(atlas);
       mesh.position.set(this.chunkSize * v.x, 0, this.chunkSize * v.z);
       scene.add(mesh);
       this.sceneMeshes.push(mesh);

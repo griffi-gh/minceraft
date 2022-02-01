@@ -1,13 +1,19 @@
 import * as common from "./common.js";
 
+//todo move to index
+//todo append to current url
+export const TEX_URL = 'game/assets/terrain.png';
+export const TEX_UV_W = 1 / 32;
+export const TEX_UV_H = 1 / 16;
+
 // Block class
 export class Block {
   static name = 'null'
   static id = 'null';
-  static texture = ''; 
+  static uv = null; 
   get name() { return this.constructor.name; }
   get id() { return this.constructor.id; }
-  get texture() { return this.constructor.texture; }
+  get uv() { return this.constructor.uv; }
   //------------------------
   constructor() {
     //  _______________________________
@@ -42,6 +48,10 @@ export class Block {
   save() {
     return [this.id, this.data.save];
   }
+
+  getRenderData() {
+    return [this.id, this.texture];
+  }
 }
 
 // BlockTypeManager
@@ -67,9 +77,18 @@ export class BlockTypeManager {
 
 // Built in blocks
 
+
 class GrassBlock extends Block {
   static name = 'Grass';
   static id = 'grass';
+  static uv = {
+    top:    common.uv(2, 0, TEX_UV_W, TEX_UV_H),
+    bottom: common.uv(18,1, TEX_UV_W, TEX_UV_H),
+    left:   common.uv(3, 0, TEX_UV_W, TEX_UV_H),
+    right:  common.uv(3, 0, TEX_UV_W, TEX_UV_H),
+    front:  common.uv(3, 0, TEX_UV_W, TEX_UV_H),
+    back:   common.uv(3, 0, TEX_UV_W, TEX_UV_H),
+  };
   //todo texture
 }
 builtIn.push(GrassBlock);
