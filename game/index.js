@@ -21,13 +21,14 @@ export default class Game extends common.EventSource {
     // Init scene
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x80CCCC);
+    // - Add camera
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.position.x += 3;
     this.camera.position.y += 20;
     this.camera.position.z += 5;
     this.scene.add(this.camera);
-
-    // Add light source
+    
+    // - Add light source
     {
       const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
       hemiLight.position.set( 0, 500, 0 );
