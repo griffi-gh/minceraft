@@ -82,15 +82,28 @@ class GrassBlock extends Block {
   static name = 'Grass';
   static id = 'grass';
   static uv = {
-    top:    common.uv(2, 0,  TEX_UV_W, TEX_UV_H),
+    top:    common.uv( 2, 0, TEX_UV_W, TEX_UV_H),
     bottom: common.uv(18, 1, TEX_UV_W, TEX_UV_H),
-    left:   common.uv(3, 0,  TEX_UV_W, TEX_UV_H),
-    right:  common.uv(3, 0,  TEX_UV_W, TEX_UV_H),
-    front:  common.uv(3, 0,  TEX_UV_W, TEX_UV_H),
-    back:   common.uv(3, 0,  TEX_UV_W, TEX_UV_H),
+    left:   common.uv( 3, 0, TEX_UV_W, TEX_UV_H),
+    right:  common.uv( 3, 0, TEX_UV_W, TEX_UV_H),
+    front:  common.uv( 3, 0, TEX_UV_W, TEX_UV_H),
+    back:   common.uv( 3, 0, TEX_UV_W, TEX_UV_H),
   };
   //todo texture
 }
 builtIn.push(GrassBlock);
 
-
+class DirtBlock extends Block {
+  static name = 'Dirt';
+  static id = 'dirt';
+  static uv = {
+    top:    common.uv(18, 1, TEX_UV_W, TEX_UV_H),
+    bottom: common.uv(18, 1, TEX_UV_W, TEX_UV_H),
+    left:   common.uv(18, 1, TEX_UV_W, TEX_UV_H),
+    right:  common.uv(18, 1, TEX_UV_W, TEX_UV_H),
+    front:  common.uv(18, 1, TEX_UV_W, TEX_UV_H),
+    back:   common.uv(18, 1, TEX_UV_W, TEX_UV_H),
+  };
+  //todo texture
+}
+builtIn.push(DirtBlock);

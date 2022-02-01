@@ -27,23 +27,6 @@ export default class Game extends common.EventSource {
     this.camera.position.z += 5;
     this.scene.add(this.camera);
 
-    // Load atlas
-    this.textures = {};
-    await new Promise((resolve, reject) => {
-      new THREE.TextureLoader().load(
-        TEX_URL,
-        texture => {
-          this.textures.atlas = texture;
-          resolve();
-        }, undefined, reject
-      );
-    });
-    //this.textures.atlas.anisotropy = 0;
-    this.textures.atlas.magFilter = THREE.NearestFilter;
-    this.textures.atlas.minFilter = THREE.NearestFilter;
-    this.textures.atlas.premultiplyAlpha = true;
-    this.textures.atlas.generateMipmaps = true;
-
     // Add light source
     {
       const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
@@ -78,6 +61,23 @@ export default class Game extends common.EventSource {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.domElement.classList.add('game-canvas');
     this.gameElement.appendChild(this.renderer.domElement);
+
+    // Load atlas
+    this.textures = {};
+    await new Promise((resolve, reject) => {
+      new THREE.TextureLoader().load(
+        TEX_URL,
+        texture => {
+          this.textures.atlas = texture;
+          resolve();
+        }, undefined, reject
+      );
+    });
+    this.textures.atlas.anisotropy = 2;
+    this.textures.atlas.magFilter = THREE.NearestFilter;
+    this.textures.atlas.minFilter = THREE.NearestFilter;
+    this.textures.atlas.premultiplyAlpha = true;
+    this.textures.atlas.generateMipmaps = true;
 
     // Init stats
     this.stats = new Stats();
