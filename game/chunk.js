@@ -42,10 +42,6 @@ export default class Chunk {
     return this.buildMesh();
   }
 
-  buildMeshWorker() {
-    
-  }
-
   buildMesh(atlas) {
     console.log('buildMesh');
     if((!this.meshInvalidated) && this.cachedMesh) {
@@ -75,11 +71,8 @@ export default class Chunk {
       color: 0xffffff,
       map: atlas
     });
-    /*const material = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      wireframe: true,
-      side: THREE.DoubleSide
-    });*/
+    //(lightLevel * 255) + (lightLevel * 255) << 16 + (lightLevel * 255) << 32,
+    //const material = new THREE.MeshBasicMaterial({color: 0,wireframe: true,side: THREE.DoubleSide});
     const geometry = builder.build();
     const mesh = new THREE.Mesh(geometry, material);
     this.meshInvalidated = false;

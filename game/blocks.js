@@ -50,7 +50,7 @@ export class Block {
   }
 
   getRenderData() {
-    return [this.id, this.texture];
+    return [this.uv];
   }
 }
 

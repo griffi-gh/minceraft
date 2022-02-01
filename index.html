@@ -10,7 +10,8 @@
   <script type="module">
     import Game from './game/index.js'
     document.addEventListener('DOMContentLoaded', () => {
-      globalThis.game = new Game().init().then(() => {
+      globalThis.game = new Game();
+      game.init().then(() => {
         try {
           document.getElementById('load').remove();
         } catch(_){}
