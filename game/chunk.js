@@ -42,7 +42,7 @@ export default class Chunk {
     return this.buildMesh();
   }
 
-  buildMesh(atlas) {
+  buildMesh( material, world) {
     console.log('buildMesh');
     if((!this.meshInvalidated) && this.cachedMesh) {
       console.log('cached');
@@ -50,28 +50,23 @@ export default class Chunk {
     }
     const builder = this._builder;
     builder.reset();
+    const cubeSides = {};
     for (let x = 0; x < this.size; x++) {
       for (let y = 0; y < this.height; y++) {
         for (let z = 0; z < this.size; z++) {
           const here = this.fastGetBlock(x,y,z);
           if(here != null) {
-            builder.put(x, y, z, {
-              front:  !this.getBlock(x, y, z+1), //front; positive-z-side
-              right:  !this.getBlock(x+1, y, z), //right; positive-x-side
-              back:   !this.getBlock(x, y, z-1), //back;  negative-z-side
-              left:   !this.getBlock(x-1, y, z), //left;  negative-x-side
-              top:    !this.getBlock(x, y+1, z), //top;   positive-y-side
-              bottom: !this.getBlock(x, y-1, z), //bottom;  negative-y-side
-            }, here.uv);
+            cubeSides.front  = !this.getBlock(x, y, z+1); //front; positive-z-side
+            cubeSides.right  = !this.getBlock(x+1, y, z); //right; positive-x-side
+            cubeSides.back   = !this.getBlock(x, y, z-1); //back;  negative-z-side
+            cubeSides.left   = !this.getBlock(x-1, y, z); //left;  negative-x-side
+            cubeSides.top    = !this.getBlock(x, y+1, z); //top;   positive-y-side
+            cubeSides.bottom = !this.getBlock(x, y-1, z); //bottom;  negative-y-side
+            builder.put(x, y, z, cubeSides, here.uv);
           }
         }
       }
     }
-    const material = new THREE.MeshLambertMaterial({
-      color: 0xffffff,
-      map: atlas,
-      fog: true,
-    });
     //(lightLevel * 255) + (lightLevel * 255) << 16 + (lightLevel * 255) << 32,
     //const material = new THREE.MeshBasicMaterial({color: 0,wireframe: true,side: THREE.DoubleSide});
     const geometry = builder.build();
@@ -79,9 +74,9 @@ export default class Chunk {
     this.meshInvalidated = false;
     if(this.cachedMesh) {
       try {
-        this.cachedMesh.dispose();
+        this.cachedMesh.geometry.dispose();
       } catch(e) {
-        console.error('cachedMesh.dispose(); failed');
+        console.error('cachedMesh.geometry.dispose(); failed');
         console.error(e);
       }
     }
@@ -130,6 +125,10 @@ export default class Chunk {
   }
 
   dispose() {
-    if(this.cachedMesh) this.cachedMesh.dispose();
+    this.invalidateMesh();
+    if(this.cachedMesh) {
+      this.cachedMesh.geometry.dispose();
+      this.cachedMesh = null;
+    }
   }
 }

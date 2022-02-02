@@ -8,17 +8,98 @@ export default class World {
     this.chunkHeight = options.chunkHeight ?? 128;
     this.saveData = {}; //custom save data, for mods;
     this.loadedChunks = [];
+    this.loadedChunksMap = {};
     this.seed = common.randomStr(16);
+    this.material = new THREE.MeshLambertMaterial({
+      color: 0xffffff,
+      map: options.atlas,
+      fog: true,
+    });
+  }
+  addLoadedChunk(x, z, chunk) {
+    if(this.getChunk(x,z)) throw new Error('Chunk loaded twice');
+    if(chunk.disposed) throw new Error('Can\'t add disposed chunk');
+    const obj = {
+      chunk, x: x, z: z,
+    }
+    this.loadedChunks.push(obj);
+    this.loadedChunksMap[common.getPosKey(x, z)] = obj;
+    return obj;
+  }
+  removeLoadedChunk(x, z) {
+    /*if((x.x != null) && (z == null)) {
+      z = x.z;
+      x = x.x;
+    }*/
+    const chunk = this.getChunk(x,z);
+    if(!chunk) throw new Error('Chunk not loaded');
+    try { 
+      chunk.chunk.dispose();
+      if(chunk.sceneMesh) chunk.sceneMesh.geometry.dispose();
+    } catch(e) { console.warn(e); }
+    chunk.disposed = true;
+    this.loadedChunks = this.loadedChunks.filter(v => (v !== chunk));
+    console.log(`disposed ${x} ${z}`)
+    return chunk;
+  }
+  getChunk(x, z) {
+    return this.loadedChunksMap[common.getPosKey(x, z)];
   }
   //TODO
-  updateLoadedChunks(scene, blocks, xPos, zPos, renderDist, atlas, force){
+  updateLoadedChunks(scene, blocks, xPos, zPos, renderDist, force){
     const x = Math.floor(xPos / this.chunkSize);
     const z = Math.floor(zPos / this.chunkSize);
-    if((this.pX === x) && (this.pZ === z)) return;  
-    console.log('Moved to ' + x + ',' + z)
+    if((!force) && (this.pX === x) && (this.pZ === z)) return;  
     this.pX = x;
     this.pZ = z;
+    console.log('Moved to ' + x + ',' + z);
+    /*
+    const removed = [];
+    const len = this.loadedChunks.length;
+    if(len) {
+      for (let i = (len - 1); i > 0; i--) {
+        const v = this.loadedChunks[i];      
+        const outOfRenderDist = (
+          (Math.abs(v.x - x) > renderDist) || 
+          (Math.abs(v.z - z) > renderDist)
+        );
+        if(outOfRenderDist) {
+          this.removeLoadedChunk(v.x, v.z);
+          removed.push(v);
+        }
+      }
+    }
 
+    const needed = {};
+    let loadedNew = false;
+    if((!this.loadedChunks.length) || removed.length) {
+      for(let ix = (x - renderDist); ix <= (x + renderDist); ix++) {
+        for(let iz = (z - renderDist); iz <= (z + renderDist); iz++) {
+          if(!this.getChunk(ix, iz)) {
+            const chunk = new Chunk(
+              this.chunkSize,
+              this.chunkHeight
+            ).generate(
+              blocks, 
+              ix * this.chunkSize,
+              iz * this.chunkSize, 
+              this.seed
+            );
+            this.addLoadedChunk(ix, iz, chunk);
+            needed[common.getPosKey(ix, iz)] = true;
+            loadedNew = true;
+          }
+        }
+      }
+    }
+
+    if(loadedNew || removed.length) {
+      this.updateLoadedChunkMeshes(scene, needed, removed);
+    }
+
+    return this;
+    
+    */
     const removed = [];
     const seen = {};
     let changed = false;
@@ -53,24 +134,29 @@ export default class World {
           needed[pkey] = true;
         }
       }
-      this.updateLoadedChunkMeshes(scene, atlas, needed, removed);
+      this.updateLoadedChunkMeshes(scene, needed, removed);
     }
     return this;
   }
-  updateLoadedChunkMeshes(scene, atlas, needed = this.loadedChunks, removed = []) {
+  updateLoadedChunkMeshes(scene, needed = this.loadedChunksMap, removed = []) {
     for(const v of removed) {
-      scene.remove(v.sceneMesh);
+      try {
+        scene.remove(v.sceneMesh); 
+        v.chunk.dispose();
+        v.sceneMesh.geometry.dispose();
+        v.sceneMesh = null;
+      } catch(e) { console.warn('Cant remove mesh??? Chunk has no assigned mesh???'); }
     }
-    let t = 0;
+    //let t = 0;
     for(const v of this.loadedChunks) {
       if(needed[common.getPosKey(v.x,v.z)]) {
-        setTimeout(() => {
-          const mesh = v.chunk.buildMesh(atlas);
-          mesh.position.set(this.chunkSize * v.x, 0, this.chunkSize * v.z);
-          scene.add(mesh);
-          v.sceneMesh = mesh;
-        }, t);
-        t += 16.6;
+        //setTimeout(() => {
+        const mesh = v.chunk.buildMesh(this.material);
+        mesh.position.set(this.chunkSize * v.x, 0, this.chunkSize * v.z);
+        scene.add(mesh);
+        v.sceneMesh = mesh;
+        //}, t);
+        //t += 32;
       }
     }
     //scene.add(new THREE.BoxHelper(this.sceneMeshes[0], 0xffff00));

@@ -116,9 +116,10 @@ export default class Game extends common.EventSource {
     this.world = new World({
       chunkSize: this.options.chunkSize,
       chunkHeight: this.options.chunkHeight,
+      atlas: this.textures.atlas
     }).updateLoadedChunks(
       this.scene, this.manager, 0, 0, 
-      this.options.renderDist, this.textures.atlas
+      this.options.renderDist
     );
 
     //move camera on press
@@ -148,7 +149,7 @@ export default class Game extends common.EventSource {
         this.world.updateLoadedChunks(
           this.scene, this.manager, 
           this.camera.position.x, this.camera.position.z,
-          this.options.renderDist, this.textures.atlas
+          this.options.renderDist
         );
       });
     }

@@ -57,7 +57,7 @@ export function randomStr(len) {
 }
 
 export function getPosKey(x,y) {
-  return `${x}$${y}`;
+  return `${x.toString()}$${y.toString()}`;
 }
 
 export function uv(x,y,w,h) {
