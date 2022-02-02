@@ -1,3 +1,4 @@
+import './lib/module-workers-polyfill.js';
 import './lib/three.js';
 import Stats from './lib/stats.js';
 

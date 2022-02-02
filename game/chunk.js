@@ -2,7 +2,7 @@ import * as common from "./common.js";
 import { generateChunk } from "./gen.js";
 
 export default class Chunk {
-  constructor(size = 32, height = 128) {
+  constructor(size = 32, height = 128, worker) {
     this.size = size;
     this.height = height;
     const rSize = new Array(size).fill();
@@ -10,6 +10,7 @@ export default class Chunk {
     this.blocks = rSize.map(() => rHght.map(() => rSize.map(() => null)));
     this.invalidateMesh();
     this._builder = new common.VoxelGeometryBuilder();
+    if(worker) this.assignedWorker = worker;
   }
 
   isInRange(x, y, z) {
@@ -42,12 +43,23 @@ export default class Chunk {
     return this.buildMesh();
   }
 
-  buildMesh(atlas) {
-    console.log('buildMesh');
-    if((!this.meshInvalidated) && this.cachedMesh) {
-      console.log('cached');
-      return this.cachedMesh;
-    }
+  async _buildGeomWorker() {
+    //todo replace with document.href or whatever
+    const worker = new Worker('/game/chunkThread.js', { type: 'module' });
+    const data = JSON.stringify(this.getRenderData());
+    worker.postMessage({renderData: data});
+    const transData = await (new Promise((resolve, reject) => {
+      worker.addEventListener('message', event => {
+        resolve(event.data.transData);
+      }, {once: true});
+    }));
+    console.log('promiseResolved')
+    const builder = this._builder;
+    builder.loadTransferredData(transData);
+    return builder.build();
+  }
+
+  _buildGeom() {
     const builder = this._builder;
     builder.reset();
     for (let x = 0; x < this.size; x++) {
@@ -67,6 +79,17 @@ export default class Chunk {
         }
       }
     }
+    return builder.build();
+  }
+
+  async buildMesh(atlas) {
+    console.log('buildMesh');
+    if((!this.meshInvalidated) && this.cachedMesh) {
+      console.log('cached');
+      return this.cachedMesh;
+    }
+    this.meshInvalidated = false;
+    
     const material = new THREE.MeshLambertMaterial({
       color: 0xffffff,
       map: atlas,
@@ -74,9 +97,15 @@ export default class Chunk {
     });
     //(lightLevel * 255) + (lightLevel * 255) << 16 + (lightLevel * 255) << 32,
     //const material = new THREE.MeshBasicMaterial({color: 0,wireframe: true,side: THREE.DoubleSide});
-    const geometry = builder.build();
+    
+    let geometry;
+    if(this.assignedWorker) {
+      geometry = await this._buildGeomWorker();
+    } else {
+      geometry = this._buildGeom();
+    }
+
     const mesh = new THREE.Mesh(geometry, material);
-    this.meshInvalidated = false;
     if(this.cachedMesh) {
       try {
         this.cachedMesh.dispose();
@@ -93,6 +122,23 @@ export default class Chunk {
     this.invalidateMesh();
     generateChunk(blocks, this, x, z, seed);
     return this;
+  }
+
+  getRenderData() {
+    let rd = [];
+    for (let x = 0; x < this.size; x++) {
+      let xr = [];
+      rd.push(xr);
+      for (let y = 0; y < this.height; y++) {
+        let yr = [];
+        xr.push(yr);
+        for (let z = 0; z < this.size; z++) {
+          const b = this.fastGetBlock(x,y,z);
+          yr.push(b ? b.getRenderData() : 0);
+        }
+      }
+    }
+    return rd;
   }
 
   save() {

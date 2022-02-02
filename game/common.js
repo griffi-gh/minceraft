@@ -144,7 +144,8 @@ export class VoxelGeometryBuilder {
     return new Uint32Array(transArray);
   }
   loadTransferredData(data) {
-    const arr = new Array(data);
+    const arr = Array.from(data);
+    //console.log(arr)
     const posLength = arr.shift();
     const normLength = arr.shift();
     const uvLength = arr.shift();

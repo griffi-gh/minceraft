@@ -1,6 +1,8 @@
 import Chunk from "./chunk.js";
 import * as common from "./common.js";
 
+const NUM_WORKERS = 4;
+
 export default class World {
   constructor(options) {
     this.name = options.name ?? ('Unnamed-' + common.randomStr(5));
@@ -10,6 +12,13 @@ export default class World {
     this.loadedChunks = [];
     this.sceneMeshes = [];
     this.seed = common.randomStr(16);
+
+    this.workers = [];
+    for (let i = 0; i < NUM_WORKERS; i++) {
+      const worker = new Worker('/game/chunkThread.js', { type: 'module' });
+      this.workers.push(worker);
+    }
+    this.nextWorker = 0;
   }
   //TODO
   updateLoadedChunks(scene, blocks, xPos, zPos, renderDist, atlas, force){
@@ -41,12 +50,18 @@ export default class World {
           const az = iz + z;
           if(seen[`${ax}$${az}`]) continue;
           this.loadedChunks.push({
-            chunk: new Chunk(this.chunkSize, this.chunkHeight).generate(
-              blocks, ax * this.chunkSize, az * this.chunkSize, 
+            chunk: new Chunk(
+              this.chunkSize, 
+              this.chunkHeight,
+              this.workers[this.nextWorker++]
+            ).generate(
+              blocks, 
+              ax * this.chunkSize, 
+              az * this.chunkSize, 
               this.seed
-            ),
-            x: ax, z: az,
+            ), x: ax, z: az,
           });
+          if(this.nextWorker >= this.workers.length) this.nextWorker = 0;
         }
       }
       this.updateLoadedChunkMeshes(scene, atlas);
@@ -54,16 +69,17 @@ export default class World {
     return this;
   }
   updateLoadedChunkMeshes(scene, atlas) {
-    this.sceneMeshes.forEach(v => {
+    for(const v of this.sceneMeshes) {
       scene.remove(v);
       if(v.dispose) v.dispose();
-    });
-    this.loadedChunks.forEach(v => {
-      const mesh = v.chunk.buildMesh(atlas);
-      mesh.position.set(this.chunkSize * v.x, 0, this.chunkSize * v.z);
-      scene.add(mesh);
-      this.sceneMeshes.push(mesh);
-    });
+    }
+    for(const v of this.loadedChunks) {
+      v.chunk.buildMesh(atlas).then(mesh => {
+        mesh.position.set(this.chunkSize * v.x, 0, this.chunkSize * v.z);
+        scene.add(mesh);
+        this.sceneMeshes.push(mesh);
+      });
+    }
     //scene.add(new THREE.BoxHelper(this.sceneMeshes[0], 0xffff00));
   }
   //todo
