@@ -8,12 +8,14 @@ export const TEX_UV_H = 1 / 16;
 
 // Block class
 export class Block {
-  static name = 'null'
-  static id = 'null';
+  static name = null;
+  static id = null;
   static uv = null; 
+  static material = null;
   get name() { return this.constructor.name; }
   get id() { return this.constructor.id; }
   get uv() { return this.constructor.uv; }
+  get material() { return this.constructor.material; }
   //------------------------
   constructor() {
     //  _______________________________
@@ -89,6 +91,7 @@ class GrassBlock extends Block {
     front:  common.uv( 3, 0, TEX_UV_W, TEX_UV_H),
     back:   common.uv( 3, 0, TEX_UV_W, TEX_UV_H),
   };
+  static material = 0;
   //todo texture
 }
 builtIn.push(GrassBlock);
@@ -104,6 +107,23 @@ class DirtBlock extends Block {
     front:  common.uv(18, 1, TEX_UV_W, TEX_UV_H),
     back:   common.uv(18, 1, TEX_UV_W, TEX_UV_H),
   };
+  static material = 0;
   //todo texture
 }
 builtIn.push(DirtBlock);
+
+class GlassBlock extends Block {
+  static name = 'Glass';
+  static id = 'glass';
+  static uv = {
+    top:    common.uv(24, 4, TEX_UV_W, TEX_UV_H),
+    bottom: common.uv(24, 4, TEX_UV_W, TEX_UV_H),
+    left:   common.uv(24, 4, TEX_UV_W, TEX_UV_H),
+    right:  common.uv(24, 4, TEX_UV_W, TEX_UV_H),
+    front:  common.uv(24, 4, TEX_UV_W, TEX_UV_H),
+    back:   common.uv(24, 4, TEX_UV_W, TEX_UV_H),
+  };
+  static material = 1;
+  //todo texture
+}
+builtIn.push(GlassBlock);

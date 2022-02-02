@@ -42,7 +42,13 @@ export default class Chunk {
     return this.buildMesh();
   }
 
-  buildMesh( material, world) {
+  _chkSide(x, y, z, m) {
+    const b = this.getBlock(x, y, z)
+    if(b && (b.material !== m)) return true;
+    return !b;
+  }
+
+  buildMesh(material, world) {
     console.log('buildMesh');
     if((!this.meshInvalidated) && this.cachedMesh) {
       console.log('cached');
@@ -51,21 +57,26 @@ export default class Chunk {
     const builder = this._builder;
     builder.reset();
     const cubeSides = {};
-    for (let x = 0; x < this.size; x++) {
-      for (let y = 0; y < this.height; y++) {
-        for (let z = 0; z < this.size; z++) {
-          const here = this.fastGetBlock(x,y,z);
-          if(here != null) {
-            cubeSides.front  = !this.getBlock(x, y, z+1); //front; positive-z-side
-            cubeSides.right  = !this.getBlock(x+1, y, z); //right; positive-x-side
-            cubeSides.back   = !this.getBlock(x, y, z-1); //back;  negative-z-side
-            cubeSides.left   = !this.getBlock(x-1, y, z); //left;  negative-x-side
-            cubeSides.top    = !this.getBlock(x, y+1, z); //top;   positive-y-side
-            cubeSides.bottom = !this.getBlock(x, y-1, z); //bottom;  negative-y-side
-            builder.put(x, y, z, cubeSides, here.uv);
+    for (let m = 0; m < material.length; m++) {
+      for (let x = 0; x < this.size; x++) {
+        for (let y = 0; y < this.height; y++) {
+          for (let z = 0; z < this.size; z++) {
+            const here = this.fastGetBlock(x,y,z);
+            if(here != null) {
+              const hm = here.material
+              if(hm !== m) continue;
+              cubeSides.front  = this._chkSide(x, y, z+1, hm); //front; positive-z-side
+              cubeSides.right  = this._chkSide(x+1, y, z, hm); //right; positive-x-side
+              cubeSides.back   = this._chkSide(x, y, z-1, hm); //back;  negative-z-side
+              cubeSides.left   = this._chkSide(x-1, y, z, hm); //left;  negative-x-side
+              cubeSides.top    = this._chkSide(x, y+1, z, hm); //top;   positive-y-side
+              cubeSides.bottom = this._chkSide(x, y-1, z, hm); //bottom;  negative-y-side
+              builder.putCube(x, y, z, cubeSides, here.uv);
+            }
           }
         }
       }
+      if(m < (material.length - 1)) builder.nextGroup();
     }
     //(lightLevel * 255) + (lightLevel * 255) << 16 + (lightLevel * 255) << 32,
     //const material = new THREE.MeshBasicMaterial({color: 0,wireframe: true,side: THREE.DoubleSide});

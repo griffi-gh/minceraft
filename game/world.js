@@ -10,11 +10,18 @@ export default class World {
     this.loadedChunks = [];
     this.loadedChunksMap = {};
     this.seed = common.randomStr(16);
-    this.material = new THREE.MeshLambertMaterial({
-      color: 0xffffff,
-      map: options.atlas,
-      fog: true,
-    });
+    this.material = [
+      new THREE.MeshLambertMaterial({
+        color: 0xffffff,
+        map: options.atlas,
+      }),
+      new THREE.MeshLambertMaterial({
+        color: 0xffffff,
+        map: options.atlas,
+        transparent: true,
+        side: THREE.DoubleSide
+      }),
+    ];
   }
   addLoadedChunk(x, z, chunk) {
     if(this.getChunk(x,z)) throw new Error('Chunk loaded twice');
