@@ -56,6 +56,10 @@ export function randomStr(len) {
   return random(0,parseInt('z'.repeat(len),36)).toString(36);
 }
 
+export function getPosKey(x,y) {
+  return `${x}$${y}`;
+}
+
 export function uv(x,y,w,h) {
   return [
     x * w,
