@@ -105,14 +105,14 @@ export class VoxelGeometryBuilder {
       this.grMat++
     ]);
     console.log(this.groups.at(-1));
-    this.grPrevPtr = this.grPtr + 1;
+    this.grPrevPtr = this.grPtr;
   }
 
   _pushIndexesCube() {
     const i = this.idxPtr;
     this.indexes.push(i, i+1, i+2, i+2, i+1, i+3);
     this.idxPtr = i+4;
-    this.grPtr += 12;
+    this.grPtr += 6;
   }
   putCube(x, y, z, sides, uv) {
     //todo custom uvs

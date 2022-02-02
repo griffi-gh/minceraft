@@ -48,6 +48,7 @@ export default class Chunk {
     return !b;
   }
 
+  //TODO use world to eliminate edges
   buildMesh(material, world) {
     console.log('buildMesh');
     if((!this.meshInvalidated) && this.cachedMesh) {
