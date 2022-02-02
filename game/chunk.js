@@ -44,7 +44,7 @@ export default class Chunk {
 
   _chkSide(x, y, z, m) {
     const b = this.getBlock(x, y, z)
-    if(b && (b.material !== m)) return true;
+    if(b && (b.material > m)) return true;
     return !b;
   }
 
