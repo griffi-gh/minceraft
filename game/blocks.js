@@ -49,8 +49,12 @@ export class Block {
     return [this.id, this.data.save];
   }
 
-  getRenderData() {
-    return [this.uv];
+  getRenderData(manager) {
+    const flatUv = [];
+    for (const key of ['front','right','left','back','top','bottom']) {
+      flatUv.push.apply(flatUv, this.uv[key]);
+    }
+    return flatUv;
   }
 }
 
@@ -60,6 +64,7 @@ export class BlockTypeManager {
   constructor() {
     this.types = [];
     this.typesById = {}
+    this.typeIndexMap = {};
   }
   addType(type) {
     if(!(type.prototype instanceof Block)) {
@@ -67,8 +72,20 @@ export class BlockTypeManager {
     }
     this.types.push(type);
     this.typesById[type.id] = type;
+    this.typeIndexMap[type] = (this.types.length - 1);
   }
-  getById(id) { return this.typesById[id]; }
+  getId(type) {
+    return type.id;
+  }
+  getById(id) {
+    return this.typesById[id];
+  }
+  getNumericId(type) {
+    return this.typeIndexMap[type];
+  }
+  getByNumericId(nid) {
+    return this.types[nid];
+  }
   loadBuiltIn() {
     builtIn.forEach(v => this.addType(v));
     return this;

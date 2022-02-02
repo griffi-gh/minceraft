@@ -1,7 +1,8 @@
 import * as common from './common.js';
 
 addEventListener('message', event => {
-  const rd = JSON.parse(event.data.renderData);
+  const rd = Array.from(event.data.renderData);
+  console.log(`Got ${rd} Float32`);
 
   const size = rd.length;
   const height = rd[0].length;
@@ -18,11 +19,16 @@ addEventListener('message', event => {
 
   const builder = new common.VoxelGeometryBuilder();
   
+  let rdi = 0;
   for (let x = 0; x < size; x++) {
     for (let y = 0; y < height; y++) {
       for (let z = 0; z < size; z++) {
-        const v = rd[x][y][z];
-        if(v) {
+        const isEmpty = rd[rdi] < 0;
+        if(isEmpty) {
+          rdi++;
+        } else {
+          const uv = rd.slice(rdi, 6*4);
+          rdi += 6*4;
           builder.put(
             x,y,z,{
               front:  !getBlock(x, y, z+1), //front; positive-z-side
@@ -31,7 +37,14 @@ addEventListener('message', event => {
               left:   !getBlock(x-1, y, z), //left;  negative-x-side
               top:    !getBlock(x, y+1, z), //top;   positive-y-side
               bottom: !getBlock(x, y-1, z), //bottom;  negative-y-side
-            }, v[0] //RDItem[0] is uv
+            }, {
+              front:  uv.slice(0, 4), //front; positive-z-side
+              right:  uv.slice(4, 4), //right; positive-x-side
+              back:   uv.slice(8, 4), //back;  negative-z-side
+              left:   uv.slice(12,4), //left;  negative-x-side
+              top:    uv.slice(16,4), //top;   positive-y-side
+              bottom: uv.slice(20,4), //bottom;  negative-y-side
+            } 
           )
         }
       }

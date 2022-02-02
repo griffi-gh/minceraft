@@ -46,8 +46,8 @@ export default class Chunk {
   async _buildGeomWorker() {
     //todo replace with document.href or whatever
     const worker = new Worker('/game/chunkThread.js', { type: 'module' });
-    const data = JSON.stringify(this.getRenderData());
-    worker.postMessage({renderData: data});
+    const data = this.getRenderData();
+    worker.postMessage({renderData: data}, [data.buffer]);
     const transData = await (new Promise((resolve, reject) => {
       worker.addEventListener('message', event => {
         resolve(event.data.transData);
@@ -127,18 +127,18 @@ export default class Chunk {
   getRenderData() {
     let rd = [];
     for (let x = 0; x < this.size; x++) {
-      let xr = [];
-      rd.push(xr);
       for (let y = 0; y < this.height; y++) {
-        let yr = [];
-        xr.push(yr);
         for (let z = 0; z < this.size; z++) {
-          const b = this.fastGetBlock(x,y,z);
-          yr.push(b ? b.getRenderData() : 0);
+          const block = this.fastGetBlock(x,y,z);
+          if(block) {
+            rd.push.apply(rd, block.getRenderData());
+          } else {
+            rd.push(-1);
+          }
         }
       }
     }
-    return rd;
+    return new Float32Array(rd);
   }
 
   save() {
