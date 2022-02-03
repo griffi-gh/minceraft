@@ -1,0 +1,22 @@
+{
+  "name": "minceraft",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/griffi-gh/minceraft.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/griffi-gh/minceraft/issues"
+  },
+  "homepage": "https://github.com/griffi-gh/minceraft#readme",
+  "devDependencies": {
+    "eslint": "^8.8.0"
+  }
+}

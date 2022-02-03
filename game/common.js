@@ -1,8 +1,9 @@
 export class EventSource extends Object {
   constructor(...args) {
-    super();
+    super(...args);
     this._callbacks = {};
   }
+
   createEvent(name) {
     this._callbacks[String(name)] = [];
   }
@@ -25,20 +26,39 @@ export class EventSource extends Object {
     }
     if(doFilter) callbacks[name] = arr.filter(v => v[0]);
   }
+
   onEvent(name, callback, once = false) {
     this._callbacks[String(name)].push([callback, once]);
+    return this;
   }
   offEvent(name, callback) {
     name = String(name);
     const callbacks = this._callbacks;
     callbacks[name] = callbacks[name].filter(v => (v !== callback));
+    return this;
   }
-  clearEvents(name) {
+
+  clearEventListeners(name) {
     if(name == null) {
       this._callbacks = {};
     } else {
       this.createEvent(name);
     }
+  }
+
+  //sugary stuff
+  async awaitEvent(name) {
+    return (await new Promise(resolve => {
+      return this.onEvent(name, (...args) => {
+        resolve(args);
+      }, true);
+    }));
+  }
+  addEventLisener(name, callback, options = {once: false}) {
+    this.onEvent(name, callback, options.once);
+  }
+  removeEventListener(name, callback) {
+    this.offEvent(name, callback);
   }
 }
 
@@ -170,32 +190,5 @@ export class VoxelGeometryBuilder {
     geometry.setIndex(this.indexes);
     this.groups.forEach(group => geometry.addGroup.apply(geometry, group));
     return geometry;
-  }
-
-  getTransferrableData() {
-    const transArray = [
-      this.pos.length,
-      this.norm.length, 
-      this.uv.length,
-      this.indexes.length
-    ];
-    transArray.push.apply(transArray, this.pos);
-    transArray.push.apply(transArray, this.norm);
-    transArray.push.apply(transArray, this.uv);
-    transArray.push.apply(transArray, this.indexes);
-    return new Uint32Array(transArray);
-  }
-  loadTransferredData(data) {
-    const arr = new Array(data);
-    const posLength = arr.shift();
-    const normLength = arr.shift();
-    const uvLength = arr.shift();
-    const indexesLength = arr.shift();
-    this.pos = arr.splice(0, posLength);
-    this.norm = arr.splice(0, normLength);
-    this.uv = arr.splice(0, uvLength);
-    this.indexes = arr.splice(0, indexesLength);
-    if(arr.length) console.warn('Leftover data');
-    return this;
   }
 }

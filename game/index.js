@@ -4,6 +4,7 @@ import Stats from './lib/stats.js';
 import * as common from './common.js';
 import { BlockTypeManager, TEX_URL } from './blocks.js';
 import World from './world.js';
+import Player from './player.js';
 
 export default class Game extends common.EventSource {
   constructor(_options = {}) {
@@ -85,10 +86,8 @@ export default class Game extends common.EventSource {
     this.stats.showPanel(0);
     this.gameElement.appendChild(this.stats.dom);
 
-    // Set up callbacks
-    this.createEvents('animation-frame', 'render-pre', 'render', 'render-post', 'resize');
-
     // Render callback
+    this.createEvents('animation-frame', 'render-pre', 'render', 'render-post');
     let ptime = 0;
     const onAnimationFrame = time => {
       this.stats.begin();
@@ -98,19 +97,63 @@ export default class Game extends common.EventSource {
       this.triggerEvent('render-pre', delta);
       this.triggerEvent('render', delta);
       this.triggerEvent('render-post', delta);
-      this.render(delta); // render() MUST be called after events
       requestAnimationFrame(onAnimationFrame);
       this.stats.end();
     };
     requestAnimationFrame(onAnimationFrame);
 
     // Resize callback
+    this.createEvent('resize');
     addEventListener('resize', () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
       this.triggerEvent('resize', w, h);
     });
+
+    // Mouse callbacks
+    this.createEvents('mousemove', 'click', 'click-r');
+    //mousemove
+    this.gameElement.addEventListener('mousemove', event => {
+      event.stopPropagation();
+      this.triggerEvent(
+        'mousemove',
+        event.clientX,
+        event.clientY
+      );
+    });
+    this.gameElement.addEventListener('touchmove', event => {
+      event.stopPropagation();   
+      //dirty hack to make the touchscreen controls work
+      this.triggerEvent(
+        'mousemove',
+        event.touches[0].clientX,
+        event.touches[0].clientY
+      );
+    });
+    //click
+    this.gameElement.addEventListener('click', event => {
+      event.stopPropagation();
+      this.triggerEvent(
+        'click',
+        event.clientX,
+        event.clientY
+      )
+    });
+    //click-r
+    this.gameElement.addEventListener('contextmenu', event => {
+      event.stopPropagation();
+      event.preventDefault();
+      this.triggerEvent(
+        'click-r',
+        event.clientX,
+        event.clientY
+      );
+    });
+
+
+    //Assign events
     this.onEvent('resize', this.onResize.bind(this));
+    this.onEvent('render-post', this.render.bind(this));
 
     //Create a new world
     this.world = new World({
@@ -121,10 +164,14 @@ export default class Game extends common.EventSource {
       this.scene, this.manager, 0, 0, 
       this.options.renderDist
     );
+    
+    //Init a player
+    this.player = new Player(this);
 
     //move camera on press
     //TODO vertical rotation
     //TODO KB events
+    
     {
       const btn = {};
       document.body.addEventListener('keydown', event => {
@@ -135,20 +182,13 @@ export default class Game extends common.EventSource {
         btn[event.key] = false;
       });
       let rx = 0;
-      let ry = 0;
       this.onEvent('animation-frame', () => {
-        let wupd;
         if(btn.a) rx += .1;
         if(btn.d) rx -= .1;
         if(btn.e) this.camera.position.y += 0.1;
         if(btn.q) this.camera.position.y -= 0.1;
         if(btn.w) this.camera.translateZ(btn.Shift ? -1000 : -.2);
         if(btn.s) this.camera.translateZ(btn.Shift ? 1000 : .2);
-        if(btn.z) {
-          const x = this.camera.position.x;
-          const z = this.camera.position.z;
-          const y = this.camera.position.y;
-        }
         this.camera.rotation.set(0,0,0)
         this.camera.setRotationFromAxisAngle(new THREE.Vector3(0,1,0), rx);
         this.world.updateLoadedChunks(
@@ -219,7 +259,7 @@ export default class Game extends common.EventSource {
         this.world.updateChunkMesh(this.scene, c.x, c.z);
       }
 
-      this.gameElement.addEventListener('click', event => {
+      this.gameElement.addEventListener('click', () => {
         console.log(ip);
         const info = getChunkAndCoords(false);
 
@@ -238,14 +278,14 @@ export default class Game extends common.EventSource {
     }
 
     //DEBUG
-    {}
+    //{}
   }
   onResize(w, h) {
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
   }
-  render(dt) {
+  render() {
     this.renderer.render(this.scene, this.camera);
   }
 }
