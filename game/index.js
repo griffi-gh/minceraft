@@ -128,7 +128,7 @@ export default class Game extends common.EventSource {
     {
       const btn = {};
       document.body.addEventListener('keydown', event => {
-        console.log(event.key)
+        //console.log(event.key)
         btn[event.key] = true;
       });
       document.body.addEventListener('keyup', event => {
@@ -143,7 +143,12 @@ export default class Game extends common.EventSource {
         if(btn.e) this.camera.position.y += 0.1;
         if(btn.q) this.camera.position.y -= 0.1;
         if(btn.w) this.camera.translateZ(btn.Shift ? -1000 : -.2);
-        if(btn.s) this.camera.translateZ(btn.Shift ? 320000 : .2);
+        if(btn.s) this.camera.translateZ(btn.Shift ? 1000 : .2);
+        if(btn.z) {
+          const x = this.camera.position.x;
+          const z = this.camera.position.z;
+          const y = this.camera.position.y;
+        }
         this.camera.rotation.set(0,0,0)
         this.camera.setRotationFromAxisAngle(new THREE.Vector3(0,1,0), rx);
         this.world.updateLoadedChunks(
@@ -151,6 +156,64 @@ export default class Game extends common.EventSource {
           this.camera.position.x, this.camera.position.z,
           this.options.renderDist
         );
+      });
+    }
+
+    //Place blocks by clicking
+    {
+      const geometry = new THREE.BoxGeometry(1,1,1);
+      const material = new THREE.MeshBasicMaterial({
+        color: 0x00ff00,
+        wireframe: true,
+      });
+      const cube = new THREE.Mesh( geometry, material );
+      this.scene.add(cube);
+
+      let ip,x,y,z;
+      this.gameElement.addEventListener('mousemove', event => {
+        const mouse = new THREE.Vector2();
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, this.camera);
+        const chunkObjs = this.world.loadedChunks.map(v => v.sceneMesh);
+        const intersects = raycaster.intersectObjects(chunkObjs);
+        if(intersects.length) {
+          ip = intersects[0];
+          x = ip.point.x + ip.face.normal.x * .5;
+          y = ip.point.y + ip.face.normal.y * .5;
+          z = ip.point.z + ip.face.normal.z * .5;
+          cube.position.set(
+            Math.floor(x) + .5,
+            Math.floor(y) + .5,
+            Math.floor(z) + .5
+          );
+        } else {
+          ip = null;
+        }
+      });
+      
+      this.gameElement.addEventListener('click', event => {
+        console.log(ip);
+        /*const geom = ip.object.geometry;
+        console.log(
+          geom.attributes.position.array[ip.face.a],
+          geom.attributes.position.array[ip.face.b],
+          geom.attributes.position.array[ip.face.c],
+        )
+        return;*/
+        const chunk = (this.world.getChunk(
+          Math.floor(x / 32),
+          Math.floor(z / 32),
+        ));
+        const Grass = this.manager.getById('grass');
+        chunk.chunk.setBlock(
+          Math.floor(common.mod(x, 32)),
+          Math.floor(y),
+          Math.floor(common.mod(z, 32)),
+          new Grass()
+        );
+        this.world.updateChunkMesh(this.scene, chunk.x, chunk.z);
       });
     }
 

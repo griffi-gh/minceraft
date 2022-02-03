@@ -2,7 +2,9 @@ import * as common from "./common.js";
 import { generateChunk } from "./gen.js";
 
 export default class Chunk {
-  constructor(size = 32, height = 128) {
+  constructor(size = 32, height = 128, ax, az) {
+    this.worldX = ax;
+    this.worldZ = az;
     this.size = size;
     this.height = height;
     const rSize = new Array(size).fill();
@@ -42,9 +44,23 @@ export default class Chunk {
     return this.buildMesh();
   }
 
-  _chkSide(x, y, z, m) {
-    const b = this.getBlock(x, y, z)
+  _chkSide(x, y, z, m, w) {
+    const b = this.getBlock(x, y, z);
     if(b && (b.material > m)) return true;
+    /*if(b === undefined) {
+      const c = w.getChunkByCoords(
+        this.worldX * this.size + x,
+        this.worldZ * this.size + y
+      )
+      if(c) {
+        debugger;
+        return !c.chunk.getBlock(
+          common.mod(x, this.size + 1),
+          y,
+          common.mod(z, this.size + 1)
+        )
+      }
+    }*/
     return !b;
   }
 
@@ -66,12 +82,12 @@ export default class Chunk {
             if(here != null) {
               const hm = here.material
               if(hm !== m) continue;
-              cubeSides.front  = this._chkSide(x, y, z+1, hm); //front; positive-z-side
-              cubeSides.right  = this._chkSide(x+1, y, z, hm); //right; positive-x-side
-              cubeSides.back   = this._chkSide(x, y, z-1, hm); //back;  negative-z-side
-              cubeSides.left   = this._chkSide(x-1, y, z, hm); //left;  negative-x-side
-              cubeSides.top    = this._chkSide(x, y+1, z, hm); //top;   positive-y-side
-              cubeSides.bottom = this._chkSide(x, y-1, z, hm); //bottom;  negative-y-side
+              cubeSides.front  = this._chkSide(x, y, z+1, hm, world); //front; positive-z-side
+              cubeSides.right  = this._chkSide(x+1, y, z, hm, world); //right; positive-x-side
+              cubeSides.back   = this._chkSide(x, y, z-1, hm, world); //back;  negative-z-side
+              cubeSides.left   = this._chkSide(x-1, y, z, hm, world); //left;  negative-x-side
+              cubeSides.top    = this._chkSide(x, y+1, z, hm, world); //top;   positive-y-side
+              cubeSides.bottom = this._chkSide(x, y-1, z, hm, world); //bottom;  negative-y-side
               builder.putCube(x, y, z, cubeSides, here.uv);
             }
           }

@@ -60,6 +60,10 @@ export function getPosKey(x,y) {
   return `${x.toString()}$${y.toString()}`;
 }
 
+export function mod(a, b) {
+  return ((a % b) + b) % b;
+}
+
 export function uv(x,y,w,h) {
   return [
     x * w,
@@ -104,7 +108,6 @@ export class VoxelGeometryBuilder {
       this.grPtr - this.grPrevPtr,
       this.grMat++
     ]);
-    console.log(this.groups.at(-1));
     this.grPrevPtr = this.grPtr;
   }
 

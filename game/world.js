@@ -46,11 +46,18 @@ export default class World {
     } catch(e) { console.warn(e); }
     chunk.disposed = true;
     this.loadedChunks = this.loadedChunks.filter(v => (v !== chunk));
+    this.loadedChunksMap[common.getPosKey(x, z)] = undefined;
     console.log(`disposed ${x} ${z}`)
     return chunk;
   }
   getChunk(x, z) {
     return this.loadedChunksMap[common.getPosKey(x, z)];
+  }
+  getChunkByCoords(x,z) {
+    return this.loadedChunksMap[common.getPosKey(
+      Math.floor(x / this.chunkSize),
+      Math.floor(z / this.chunkSize)
+    )];
   }
   //TODO
   updateLoadedChunks(scene, blocks, xPos, zPos, renderDist, force){
@@ -60,7 +67,7 @@ export default class World {
     this.pX = x;
     this.pZ = z;
     console.log('Moved to ' + x + ',' + z);
-    /*
+    
     const removed = [];
     const len = this.loadedChunks.length;
     if(len) {
@@ -106,7 +113,7 @@ export default class World {
 
     return this;
     
-    */
+    /*
     const removed = [];
     const seen = {};
     let changed = false;
@@ -132,8 +139,14 @@ export default class World {
           const pkey = common.getPosKey(ax,az);
           if(seen[pkey]) continue;
           this.loadedChunks.push({
-            chunk: new Chunk(this.chunkSize, this.chunkHeight).generate(
-              blocks, ax * this.chunkSize, az * this.chunkSize, 
+            chunk: new Chunk(
+              this.chunkSize,
+              this.chunkHeight,
+              ax, az
+            ).generate(
+              blocks,
+              ax * this.chunkSize,
+              az * this.chunkSize, 
               this.seed
             ),
             x: ax, z: az,
@@ -143,7 +156,7 @@ export default class World {
       }
       this.updateLoadedChunkMeshes(scene, needed, removed);
     }
-    return this;
+    return this;*/
   }
   updateLoadedChunkMeshes(scene, needed = this.loadedChunksMap, removed = []) {
     for(const v of removed) {
@@ -156,9 +169,9 @@ export default class World {
     }
     //let t = 0;
     for(const v of this.loadedChunks) {
-      if(needed[common.getPosKey(v.x,v.z)]) {
+      if(v.meshInvalidated || needed[common.getPosKey(v.x,v.z)]) {
         //setTimeout(() => {
-        const mesh = v.chunk.buildMesh(this.material);
+        const mesh = v.chunk.buildMesh(this.material, this);
         mesh.position.set(this.chunkSize * v.x, 0, this.chunkSize * v.z);
         scene.add(mesh);
         v.sceneMesh = mesh;
@@ -167,6 +180,15 @@ export default class World {
       }
     }
     //scene.add(new THREE.BoxHelper(this.sceneMeshes[0], 0xffff00));
+  }
+  updateChunkMesh(scene, x, z) {
+    const chnk = this.getChunk(x,z);
+    scene.remove(chnk.sceneMesh); 
+    chnk.sceneMesh.geometry.dispose();
+    const mesh = chnk.chunk.buildMesh(this.material, this);
+    mesh.position.set(this.chunkSize * chnk.x, 0, this.chunkSize * chnk.z);
+    scene.add(mesh);
+    chnk.sceneMesh = mesh;
   }
   //todo
   save() {}
