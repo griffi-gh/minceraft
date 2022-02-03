@@ -162,11 +162,12 @@ export default class Game extends common.EventSource {
     //Place blocks by clicking
     {
       const geometry = new THREE.BoxGeometry(1,1,1);
+      const edges = new THREE.EdgesGeometry(geometry);
       const material = new THREE.MeshBasicMaterial({
-        color: 0x00ff00,
-        wireframe: true,
+        color: 0x808080,
       });
-      const cube = new THREE.Mesh( geometry, material );
+      material.linewidth = 2;
+      const cube = new THREE.LineSegments(edges, material);
       this.scene.add(cube);
 
       let ip,x,y,z;
