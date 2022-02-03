@@ -170,7 +170,7 @@ export default class Game extends common.EventSource {
       const cube = new THREE.LineSegments(edges, material);
       this.scene.add(cube);
 
-      let ip,x,y,z;
+      let ip,x,y,z,xi,yi,zi;
       this.gameElement.addEventListener('mousemove', event => {
         const mouse = new THREE.Vector2();
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -184,6 +184,9 @@ export default class Game extends common.EventSource {
           x = ip.point.x + ip.face.normal.x * .5;
           y = ip.point.y + ip.face.normal.y * .5;
           z = ip.point.z + ip.face.normal.z * .5;
+          xi = x - ip.face.normal.x;
+          yi = y - ip.face.normal.y;
+          zi = z - ip.face.normal.z;
           cube.position.set(
             Math.floor(x) + .5,
             Math.floor(y) + .5,
@@ -194,27 +197,43 @@ export default class Game extends common.EventSource {
         }
       });
       
+      const getChunkAndCoords = (inside) => {
+        const r = {}
+        const ux = inside ? xi : x;
+        const uy = inside ? yi : y;
+        const uz = inside ? zi : z;
+        r.chunkObj = (this.world.getChunk(
+          Math.floor(ux / 32),
+          Math.floor(uz / 32),
+        ));
+        r.chunk = r.chunkObj.chunk;
+        r.x = Math.floor(common.mod(ux, 32));
+        r.y = Math.floor(uy);
+        r.z = Math.floor(common.mod(uz, 32));
+        r.info = true;
+        return r;
+      }
+
+      const updateChunkMesh = (c) => {
+        if(c.info) c = c.chunkObj
+        this.world.updateChunkMesh(this.scene, c.x, c.z);
+      }
+
       this.gameElement.addEventListener('click', event => {
         console.log(ip);
-        /*const geom = ip.object.geometry;
-        console.log(
-          geom.attributes.position.array[ip.face.a],
-          geom.attributes.position.array[ip.face.b],
-          geom.attributes.position.array[ip.face.c],
-        )
-        return;*/
-        const chunk = (this.world.getChunk(
-          Math.floor(x / 32),
-          Math.floor(z / 32),
-        ));
+        const info = getChunkAndCoords(false);
+
         const Grass = this.manager.getById('grass');
-        chunk.chunk.setBlock(
-          Math.floor(common.mod(x, 32)),
-          Math.floor(y),
-          Math.floor(common.mod(z, 32)),
-          new Grass()
-        );
-        this.world.updateChunkMesh(this.scene, chunk.x, chunk.z);
+        info.chunk.setBlock(info.x, info.y, info.z, new Grass());
+
+        updateChunkMesh(info);
+      });
+
+      this.gameElement.addEventListener('contextmenu', event => {
+        event.preventDefault();
+        const info = getChunkAndCoords(true);
+        info.chunk.setBlock(info.x, info.y, info.z, null);
+        updateChunkMesh(info);
       });
     }
 
