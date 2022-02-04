@@ -68,7 +68,7 @@ export default class Game extends common.EventSource {
       this.triggerEvent('mousemove', {x, y, moveX, moveY, event});
     });
     //click
-    this.gameElement.addEventListener('click', event => {
+    this.gameElement.addEventListener('mousedown', event => {
       event.stopPropagation();
       event.preventDefault();
       if((event.button === 2) || (event.button === 0)) {
@@ -81,17 +81,6 @@ export default class Game extends common.EventSource {
           }
         );
       }
-    });
-    //click-r
-    this.gameElement.addEventListener('contextmenu', event => {
-      event.stopPropagation();
-      event.preventDefault();
-      this.triggerEvent(
-        'click-r',
-        event.clientX,
-        event.clientY,
-        event
-      );
     });
     // Keyboard callbacks
     //keyup
@@ -221,118 +210,6 @@ export default class Game extends common.EventSource {
     this.initEventTriggers();
     this.onEvent('resize', this.onResize.bind(this));
     this.onEvent('render-post', this.render.bind(this));
-
-    //move camera on press
-    //TODO vertical rotation
-    //TODO KB events
-    /*
-    {
-      const btn = {};
-      document.body.addEventListener('keydown', event => {
-        //console.log(event.key)
-        btn[event.key] = true;
-      });
-      document.body.addEventListener('keyup', event => {
-        btn[event.key] = false;
-      });
-      let rx = 0;
-      this.onEvent('animation-frame', () => {
-        if(btn.a) rx += .1;
-        if(btn.d) rx -= .1;
-        if(btn.e) this.camera.position.y += 0.1;
-        if(btn.q) this.camera.position.y -= 0.1;
-        if(btn.w) this.camera.translateZ(btn.Shift ? -1000 : -.2);
-        if(btn.s) this.camera.translateZ(btn.Shift ? 1000 : .2);
-        this.camera.rotation.set(0,0,0)
-        this.camera.setRotationFromAxisAngle(new THREE.Vector3(0,1,0), rx);
-        this.world.updateLoadedChunks(
-          this.scene, this.manager, 
-          this.camera.position.x, this.camera.position.z,
-          this.options.renderDist
-        );
-      });
-    }
-
-    //Place blocks by clicking
-    {
-      const geometry = new THREE.BoxGeometry(1,1,1);
-      const edges = new THREE.EdgesGeometry(geometry);
-      const material = new THREE.MeshBasicMaterial({
-        color: 0x808080,
-      });
-      material.linewidth = 2;
-      const cube = new THREE.LineSegments(edges, material);
-      this.scene.add(cube);
-
-      let ip,x,y,z,xi,yi,zi;
-      this.gameElement.addEventListener('mousemove', event => {
-        const mouse = new THREE.Vector2();
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        const raycaster = new THREE.Raycaster();
-        raycaster.setFromCamera(mouse, this.camera);
-        const chunkObjs = this.world.loadedChunks.map(v => v.sceneMesh);
-        const intersects = raycaster.intersectObjects(chunkObjs);
-        if(intersects.length) {
-          ip = intersects[0];
-          x = ip.point.x + ip.face.normal.x * .5;
-          y = ip.point.y + ip.face.normal.y * .5;
-          z = ip.point.z + ip.face.normal.z * .5;
-          xi = x - ip.face.normal.x;
-          yi = y - ip.face.normal.y;
-          zi = z - ip.face.normal.z;
-          cube.position.set(
-            Math.floor(x) + .5,
-            Math.floor(y) + .5,
-            Math.floor(z) + .5
-          );
-        } else {
-          ip = null;
-        }
-      });
-      
-      const getChunkAndCoords = (inside) => {
-        const r = {}
-        const ux = inside ? xi : x;
-        const uy = inside ? yi : y;
-        const uz = inside ? zi : z;
-        r.chunkObj = (this.world.getChunk(
-          Math.floor(ux / 32),
-          Math.floor(uz / 32),
-        ));
-        r.chunk = r.chunkObj.chunk;
-        r.x = Math.floor(common.mod(ux, 32));
-        r.y = Math.floor(uy);
-        r.z = Math.floor(common.mod(uz, 32));
-        r.info = true;
-        return r;
-      }
-
-      const updateChunkMesh = (c) => {
-        if(c.info) c = c.chunkObj
-        this.world.updateChunkMesh(this.scene, c.x, c.z);
-      }
-
-      this.gameElement.addEventListener('click', () => {
-        console.log(ip);
-        const info = getChunkAndCoords(false);
-
-        const Grass = this.manager.getById('grass');
-        info.chunk.setBlock(info.x, info.y, info.z, new Grass());
-
-        updateChunkMesh(info);
-      });
-
-      this.gameElement.addEventListener('contextmenu', event => {
-        event.preventDefault();
-        const info = getChunkAndCoords(true);
-        info.chunk.setBlock(info.x, info.y, info.z, null);
-        updateChunkMesh(info);
-      });
-    }*/
-
-    //DEBUG
-    //{}
   }
   onResize(w, h) {
     this.camera.aspect = w / h;
