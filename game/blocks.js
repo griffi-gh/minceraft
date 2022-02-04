@@ -43,7 +43,9 @@ export class Block {
     cat.forEach(i => {
       try {
         if(data[i]) Object.assign(this.data[i], data[i]);
-      } catch {}
+      } catch(e) {
+        console.error('assign error', e);
+      }
     });
   }
 
