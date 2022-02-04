@@ -8,8 +8,7 @@ module.exports = {
         "ecmaVersion": "latest",
         "sourceType": "module"
     },
-    "rules": {
-    },
+    "rules": {},
     "globals": {
         "THREE": "readonly"
     }

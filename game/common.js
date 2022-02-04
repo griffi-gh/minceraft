@@ -14,6 +14,7 @@ export class EventSource extends Object {
     name = String(name)
     const callbacks = this._callbacks;
     const arr = callbacks[name];
+    if(!arr) throw new Error(`Failed to trigger "${name}" - event doesn't exist`)
     let doFilter = false;
     for(const v of arr) {
       if(v[0]) {

@@ -15,7 +15,119 @@ export default class Game extends common.EventSource {
     this.options.chunkSize = _options.chunkSize ?? 32;
     this.options.chunkHeight = _options.chunkHeight ?? 128;
   }
+  initEvents() {
+    this.createEvents('animation-frame', 'render-pre', 'render', 'render-post');
+    this.createEvents('resize');
+    this.createEvents('mousemove', 'click', 'click-r');
+    this.createEvents('keydown', 'keyup', 'keypress', 'key-loop');
+    console.log('inited event groups');
+  }
+  initEventTriggers() {
+    // Render callback
+    let ptime = 0;
+    const onAnimationFrame = time => {
+      this.stats.begin();
+      const delta = time - ptime;
+      ptime = time;
+      this.triggerEvent('animation-frame', delta);
+      this.triggerEvent('render-pre', delta);
+      this.triggerEvent('render', delta);
+      this.triggerEvent('render-post', delta);
+      requestAnimationFrame(onAnimationFrame);
+      this.stats.end();
+    };
+    requestAnimationFrame(onAnimationFrame);
+
+    // Resize callback
+    addEventListener('resize', () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      this.triggerEvent('resize', w, h);
+    });
+
+    // Mouse callbacks
+    //mousemove
+    let prevX = null;
+    let prevY = null;
+    this.gameElement.addEventListener('mousemove', event => {
+      event.stopPropagation();
+      const x = event.clientX;
+      const y = event.clientY;
+      const diffX = (x - (prevX ?? x));
+      const diffY = (x - (prevY ?? y));
+      prevX = x;
+      prevY = y;
+      const moveX = event.movementX ??
+                    event.mozMovementX ?? 
+                    event.webkitMovementX ?? 
+                    diffX ?? 0;
+      const moveY = event.movementY ??
+                    event.mozMovementY ??
+                    event.webkitMovementY ?? 
+                    diffY ?? 0;
+      this.triggerEvent('mousemove', {x, y, moveX, moveY, event});
+    });
+    //click
+    this.gameElement.addEventListener('click', event => {
+      event.stopPropagation();
+      this.triggerEvent('click', {
+        x: event.clientX,
+        y: event.clientY,
+        event
+      });
+    });
+    //click-r
+    this.gameElement.addEventListener('contextmenu', event => {
+      event.stopPropagation();
+      event.preventDefault();
+      this.triggerEvent(
+        'click-r',
+        event.clientX,
+        event.clientY,
+        event
+      );
+    });
+    // Keyboard callbacks
+    //keyup
+    const getKeyEventObj = event => ({
+      key: event.code,
+      input: event.key,
+      ctrl: event.ctrlKey,
+      shift: event.shiftKey,
+      event: event
+    });
+    const keysDown = {};
+    addEventListener('keydown', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      if(event.repeat) return;
+      const obj = getKeyEventObj(event);
+      this.triggerEvent('keydown', obj);
+      keysDown[obj.key] = true;
+    })
+    addEventListener('keyup', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      if(event.repeat) return;
+      const obj = getKeyEventObj(event);
+      this.triggerEvent('keyup', obj);
+      keysDown[obj.key] = false;
+    });
+    addEventListener('keypress', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      if(event.repeat) return;
+      this.triggerEvent('keypress', getKeyEventObj(event));
+    });
+    this.onEvent('animation-frame', dt => {
+      this.triggerEvent('key-loop', keysDown, dt)
+    })
+
+    console.log('Inited events')
+  }
   async init() {
+    this.initEvents();
+
     // Create BlockTypeManager and load built in blocks
     this.manager = new BlockTypeManager().loadBuiltIn();
 
@@ -86,75 +198,6 @@ export default class Game extends common.EventSource {
     this.stats.showPanel(0);
     this.gameElement.appendChild(this.stats.dom);
 
-    // Render callback
-    this.createEvents('animation-frame', 'render-pre', 'render', 'render-post');
-    let ptime = 0;
-    const onAnimationFrame = time => {
-      this.stats.begin();
-      const delta = time - ptime;
-      ptime = time;
-      this.triggerEvent('animation-frame', delta);
-      this.triggerEvent('render-pre', delta);
-      this.triggerEvent('render', delta);
-      this.triggerEvent('render-post', delta);
-      requestAnimationFrame(onAnimationFrame);
-      this.stats.end();
-    };
-    requestAnimationFrame(onAnimationFrame);
-
-    // Resize callback
-    this.createEvent('resize');
-    addEventListener('resize', () => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      this.triggerEvent('resize', w, h);
-    });
-
-    // Mouse callbacks
-    this.createEvents('mousemove', 'click', 'click-r');
-    //mousemove
-    this.gameElement.addEventListener('mousemove', event => {
-      event.stopPropagation();
-      this.triggerEvent(
-        'mousemove',
-        event.clientX,
-        event.clientY
-      );
-    });
-    this.gameElement.addEventListener('touchmove', event => {
-      event.stopPropagation();   
-      //dirty hack to make the touchscreen controls work
-      this.triggerEvent(
-        'mousemove',
-        event.touches[0].clientX,
-        event.touches[0].clientY
-      );
-    });
-    //click
-    this.gameElement.addEventListener('click', event => {
-      event.stopPropagation();
-      this.triggerEvent(
-        'click',
-        event.clientX,
-        event.clientY
-      )
-    });
-    //click-r
-    this.gameElement.addEventListener('contextmenu', event => {
-      event.stopPropagation();
-      event.preventDefault();
-      this.triggerEvent(
-        'click-r',
-        event.clientX,
-        event.clientY
-      );
-    });
-
-
-    //Assign events
-    this.onEvent('resize', this.onResize.bind(this));
-    this.onEvent('render-post', this.render.bind(this));
-
     //Create a new world
     this.world = new World({
       chunkSize: this.options.chunkSize,
@@ -168,10 +211,15 @@ export default class Game extends common.EventSource {
     //Init a player
     this.player = new Player(this);
 
+    // Init events and assign them
+    this.initEventTriggers();
+    this.onEvent('resize', this.onResize.bind(this));
+    this.onEvent('render-post', this.render.bind(this));
+
     //move camera on press
     //TODO vertical rotation
     //TODO KB events
-    
+    /*
     {
       const btn = {};
       document.body.addEventListener('keydown', event => {
@@ -275,7 +323,7 @@ export default class Game extends common.EventSource {
         info.chunk.setBlock(info.x, info.y, info.z, null);
         updateChunkMesh(info);
       });
-    }
+    }*/
 
     //DEBUG
     //{}
