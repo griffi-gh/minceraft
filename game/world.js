@@ -149,7 +149,7 @@ export default class World {
       } catch(e) { console.warn('Cant remove mesh??? Chunk has no assigned mesh???'); }
     }
     for(const v of this.loadedChunks) {
-      if(v.meshInvalidated || needed[common.getPosKey(v.x,v.z)]) {
+      if((!v.disposed) && (v.meshInvalidated || needed[common.getPosKey(v.x,v.z)])) {
         const mesh = v.chunk.buildMesh(this.material, this);
         mesh.position.set(this.chunkSize * v.x, 0, this.chunkSize * v.z);
         scene.add(mesh);
@@ -159,6 +159,7 @@ export default class World {
   }
   updateChunkMesh(scene, x, z) {
     const chnk = this.getChunk(x,z);
+    if(chnk.disposed) return;
     scene.remove(chnk.sceneMesh); 
     chnk.sceneMesh.geometry.dispose();
     const mesh = chnk.chunk.buildMesh(this.material, this);

@@ -47,20 +47,6 @@ export default class Chunk {
   _chkSide(x, y, z, m, w) {
     const b = this.getBlock(x, y, z);
     if(b && (b.material > m)) return true;
-    /*if(b === undefined) {
-      const c = w.getChunkByCoords(
-        this.worldX * this.size + x,
-        this.worldZ * this.size + y
-      )
-      if(c) {
-        debugger;
-        return !c.chunk.getBlock(
-          common.mod(x, this.size + 1),
-          y,
-          common.mod(z, this.size + 1)
-        )
-      }
-    }*/
     return !b;
   }
 

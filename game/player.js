@@ -162,6 +162,7 @@ export default class Player extends common.EventSource {
       let moveForward = 0;
       let moveStrafe = 0;
       let moveVertical = 0;
+      if(keys.KeyK) { spd *= 100; }
       if(keys.ShiftLeft) { spd *= 2.33; }
       if(keys.AltLeft) { moveVertical -= spd; }
       if(keys.Space) { moveVertical += spd; }
@@ -198,15 +199,21 @@ export default class Player extends common.EventSource {
 
     this.game.onEvent('click', () => {
       const v = this.hover.break;
-      this.world.setBlockAndUpdateMesh(v.x, v.y, v.z, null, this.scene);
-      this.updateRaycastAndIndicatorCubeTask();
-    })
+      const b = this.world.getBlock(v.x, v.y, v.z);
+      if(b.breakable && (!b.liquid)) {
+        this.world.setBlockAndUpdateMesh(v.x, v.y, v.z, null, this.scene);
+        this.updateRaycastAndIndicatorCubeTask();
+      }
+    });
     this.game.onEvent('click-r', () => {
-      this.updateRaycastAndIndicatorCube();
       const v = this.hover.place;
-      const Block = this.game.manager.getById('dirt'); //todo this.game.manager => this.blocks
-      this.world.setBlockAndUpdateMesh(v.x, v.y, v.z, new Block(), this.scene);
-      this.updateRaycastAndIndicatorCubeTask();
+      const b = this.world.getBlock(v.x, v.y, v.z);
+      if((b == null) || (b.liquid && b.breakable)) {
+        this.updateRaycastAndIndicatorCube();
+        const Block = this.game.manager.getById('dirt'); //todo this.game.manager => this.blocks
+        this.world.setBlockAndUpdateMesh(v.x, v.y, v.z, new Block(), this.scene);
+        this.updateRaycastAndIndicatorCubeTask();
+      }
     });
 
     //highlight cube

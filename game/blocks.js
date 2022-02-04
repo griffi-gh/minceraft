@@ -11,11 +11,15 @@ export class Block {
   static name = null;
   static id = null;
   static uv = null; 
-  static material = null;
+  static material = 0;
+  static breakable = true;
+  static liquid = false;
   get name() { return this.constructor.name; }
   get id() { return this.constructor.id; }
   get uv() { return this.constructor.uv; }
   get material() { return this.constructor.material; }
+  get breakable() { return this.constructor.breakable; }
+  get liquid() { return this.constructor.liquid; }
   //------------------------
   constructor() {
     //  _______________________________
@@ -107,7 +111,6 @@ class DirtBlock extends Block {
     back:   common.uv(18, 1, TEX_UV_W, TEX_UV_H),
   };
   static material = 0;
-
 }
 builtIn.push(DirtBlock);
 
@@ -129,6 +132,7 @@ builtIn.push(GlassBlock);
 class WaterBlock extends Block {
   static name = 'Water';
   static id = 'water';
+  static liquid = true;
   static uv = {
     top:    common.uv(16, 11, TEX_UV_W, TEX_UV_H),
     bottom: common.uv(16, 11, TEX_UV_W, TEX_UV_H),
@@ -141,3 +145,18 @@ class WaterBlock extends Block {
 }
 builtIn.push(WaterBlock);
 
+class BedrockBlock extends Block {
+  static name = 'Bedrock';
+  static id = 'bedrock';
+  static breakable = false;
+  static uv = {
+    top:    common.uv(0, 1, TEX_UV_W, TEX_UV_H),
+    bottom: common.uv(0, 1, TEX_UV_W, TEX_UV_H),
+    left:   common.uv(0, 1, TEX_UV_W, TEX_UV_H),
+    right:  common.uv(0, 1, TEX_UV_W, TEX_UV_H),
+    front:  common.uv(0, 1, TEX_UV_W, TEX_UV_H),
+    back:   common.uv(0, 1, TEX_UV_W, TEX_UV_H),
+  };
+  static material = 0;
+}
+builtIn.push(BedrockBlock);
