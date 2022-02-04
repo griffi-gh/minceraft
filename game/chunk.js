@@ -45,7 +45,16 @@ export default class Chunk {
   }
 
   _chkSide(x, y, z, m, w) {
-    const b = this.getBlock(x, y, z);
+    let b
+    if(w && ((x < 0) || (x >= this.size) || (z < 0) || (z >= this.size))) {
+      b = w.getBlock(
+        (this.worldX * this.size) + x,
+        y,
+        (this.worldZ * this.size) + z
+      );
+    } else {
+      b = this.getBlock(x, y, z);
+    }
     if(b && (b.material > m)) return true;
     return !b;
   }
@@ -66,7 +75,7 @@ export default class Chunk {
           for (let z = 0; z < this.size; z++) {
             const here = this.fastGetBlock(x,y,z);
             if(here != null) {
-              const hm = here.material
+              const hm = here.material;
               if(hm !== m) continue;
               cubeSides.front  = this._chkSide(x, y, z+1, hm, world); //front; positive-z-side
               cubeSides.right  = this._chkSide(x+1, y, z, hm, world); //right; positive-x-side

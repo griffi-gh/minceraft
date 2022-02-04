@@ -73,17 +73,32 @@ export default class World {
   }
   setBlock(x, y, z, block) {
     const data = this._getChunkAndCoords(x, y, z);
+    if(!data.chunk) return false;
     data.chunk.chunk.setBlock(data.x, data.y, data.z, block);
     return this;
   }
   setBlockAndUpdateMesh(x, y, z, block, scene) {
     const data = this._getChunkAndCoords(x, y, z);
+    if(!data.chunk) return false;
     data.chunk.chunk.setBlock(data.x, data.y, data.z, block);
     this.updateChunkMesh(scene, data.chunk.x, data.chunk.z);
+    const xDir = ((data.x >= (this.chunkSize - 1))|0) - ((data.x <= 0)|0);
+    const zDir = ((data.z >= (this.chunkSize - 1))|0) - ((data.z <= 0)|0);
+    if(xDir || zDir) {
+      const nChunkX = data.chunk.x + xDir, 
+            nChunkZ = data.chunk.z + zDir;
+      console.log(`Rebuild neighbor chunk ${nChunkX} ${nChunkZ} (offset ${xDir} ${zDir})`)
+      const neighbor = this.getChunk(nChunkX, nChunkZ);
+      if(neighbor) {
+        neighbor.chunk.invalidateMesh();
+        this.updateChunkMesh(scene, nChunkX, nChunkZ);
+      }
+    }
     return this;
   }
   getBlock(x, y, z) {
     const data = this._getChunkAndCoords(x, y, z);
+    if(!data.chunk) return undefined;
     return data.chunk.chunk.getBlock(data.x, data.y, data.z);
   }
   //TODO
@@ -119,7 +134,8 @@ export default class World {
           if(!this.getChunk(ix, iz)) {
             const chunk = new Chunk(
               this.chunkSize,
-              this.chunkHeight
+              this.chunkHeight,
+              ix, iz
             ).generate(
               blocks, 
               ix * this.chunkSize,
