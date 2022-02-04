@@ -153,16 +153,14 @@ export default class World {
     for(const v of this.loadedChunks) {
       if(cond(v)) {
         //todo timeout
-        if(cond(v)) {
-          if(v.sceneMesh) {
-            v.sceneMesh.geometry.dispose();
-            scene.remove(v.sceneMesh);
-          } 
-          const mesh = v.chunk.buildMesh(this.material, this);
-          mesh.position.set(this.chunkSize * v.x, 0, this.chunkSize * v.z);
-          scene.add(mesh);
-          v.sceneMesh = mesh;
-        }
+        if(v.sceneMesh) {
+          v.sceneMesh.geometry.dispose();
+          scene.remove(v.sceneMesh);
+        } 
+        const mesh = v.chunk.buildMesh(this.material, this);
+        mesh.position.set(this.chunkSize * v.x, 0, this.chunkSize * v.z);
+        scene.add(mesh);
+        v.sceneMesh = mesh;
       }
     }
   }
