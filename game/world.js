@@ -33,7 +33,7 @@ export default class World {
     this.loadedChunksMap[common.getPosKey(x, z)] = obj;
     return obj;
   }
-  removeLoadedChunk(x, z) {
+  removeLoadedChunk(x, z, scene) {
     if((x.x != null) && (z == null)) {
       z = x.z;
       x = x.x;
@@ -43,6 +43,7 @@ export default class World {
     try { 
       chunk.chunk.dispose();
       if(chunk.sceneMesh) chunk.sceneMesh.geometry.dispose();
+      if(scene && chunk.sceneMesh) scene.remove(chunk.sceneMesh);
     } catch(e) { console.warn(e); }
     chunk.disposed = true;
     this.loadedChunks = this.loadedChunks.filter(v => (v !== chunk));
@@ -104,7 +105,7 @@ export default class World {
           (Math.abs(v.z - z) > renderDist)
         );
         if(outOfRenderDist) {
-          this.removeLoadedChunk(v.x, v.z);
+          this.removeLoadedChunk(v.x, v.z, scene);
           removed.push(v);
         }
       }
@@ -142,18 +143,26 @@ export default class World {
   updateLoadedChunkMeshes(scene, needed = this.loadedChunksMap, removed = []) {
     for(const v of removed) {
       try {
-        scene.remove(v.sceneMesh); 
         v.chunk.dispose();
-        v.sceneMesh.geometry.dispose();
+        if(v.sceneMesh) v.sceneMesh.geometry.dispose();
         v.sceneMesh = null;
+        scene.remove(v.sceneMesh);
       } catch(e) { console.warn('Cant remove mesh??? Chunk has no assigned mesh???'); }
     }
+    const cond = (v) => (!v.disposed) && (v.chunk.meshInvalidated || needed[common.getPosKey(v.x,v.z)]);
     for(const v of this.loadedChunks) {
-      if((!v.disposed) && (v.meshInvalidated || needed[common.getPosKey(v.x,v.z)])) {
-        const mesh = v.chunk.buildMesh(this.material, this);
-        mesh.position.set(this.chunkSize * v.x, 0, this.chunkSize * v.z);
-        scene.add(mesh);
-        v.sceneMesh = mesh;
+      if(cond(v)) {
+        //todo timeout
+        if(cond(v)) {
+          if(v.sceneMesh) {
+            v.sceneMesh.geometry.dispose();
+            scene.remove(v.sceneMesh);
+          } 
+          const mesh = v.chunk.buildMesh(this.material, this);
+          mesh.position.set(this.chunkSize * v.x, 0, this.chunkSize * v.z);
+          scene.add(mesh);
+          v.sceneMesh = mesh;
+        }
       }
     }
   }
