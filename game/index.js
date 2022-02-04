@@ -70,11 +70,17 @@ export default class Game extends common.EventSource {
     //click
     this.gameElement.addEventListener('click', event => {
       event.stopPropagation();
-      this.triggerEvent('click', {
-        x: event.clientX,
-        y: event.clientY,
-        event
-      });
+      event.preventDefault();
+      if((event.button === 2) || (event.button === 0)) {
+        this.triggerEvent(
+          (event.button === 2) ? 'click-r' : 'click', 
+          {
+            x: event.clientX,
+            y: event.clientY,
+            event
+          }
+        );
+      }
     });
     //click-r
     this.gameElement.addEventListener('contextmenu', event => {

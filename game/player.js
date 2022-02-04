@@ -120,6 +120,15 @@ export default class Player extends common.EventSource {
   updateRaycastAndIndicatorCube() {
     return this.updateRaycast().updateIndicatorCube();
   }
+  updateRaycastAndIndicatorCubeTask = () => {
+    if(this.taskp) return this;
+    this.taskp = true;
+    this.game.onEvent('animation-frame', () => {
+      this.updateRaycastAndIndicatorCube()
+      this.taskp = false;  
+    }, true);
+    return this;
+  }
   initControls() {
     if(this.controlsInited) return this;
     this.controlsInited = true;
@@ -130,14 +139,14 @@ export default class Player extends common.EventSource {
 
     //lock mouse on click
     this.game.onEvent('click', this.lockPointer.bind(this));
-    
+
     this.game.onEvent('mousemove', event => {
       _euler.setFromQuaternion(this.rotation);
       _euler.y -= event.moveX * .003;
       _euler.x -= event.moveY * .003;
       _euler.x = Math.max(-common.PI_2, Math.min(common.PI_2, _euler.x))
       this.rotation.setFromEuler(_euler);
-      this.updateRaycastAndIndicatorCube()
+      this.updateRaycastAndIndicatorCubeTask()
           .syncCamera();
     })
 
@@ -155,15 +164,21 @@ export default class Player extends common.EventSource {
       if(keys.KeyD) { moveStrafe += spd; }
       if(moveForward || moveStrafe || moveVertical) {
         this.move(moveForward, moveStrafe, moveVertical)
-            .updateRaycastAndIndicatorCube()
+            .updateRaycastAndIndicatorCubeTask()
             .syncCamera();
       }
     });
 
     this.game.onEvent('click', () => {
       const v = this.hover.break;
-      console.log('Breaking block at ', v);
       this.world.setBlockAndUpdateMesh(v.x, v.y, v.z, null, this.scene);
+      this.updateRaycastAndIndicatorCubeTask();
+    })
+    this.game.onEvent('click-r', () => {
+      const v = this.hover.place;
+      const Block = this.game.manager.getById('dirt'); //todo this.game.manager => this.blocks
+      this.world.setBlockAndUpdateMesh(v.x, v.y, v.z, new Block(), this.scene);
+      this.updateRaycastAndIndicatorCubeTask();
     })
 
     //highlight cube
