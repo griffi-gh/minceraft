@@ -133,8 +133,6 @@ export default class Player extends common.EventSource {
     if(this.controlsInited) return this;
     this.controlsInited = true;
 
-    alert('Block placement and chunk loader are currently disabled');
-
     console.log('Init controls');
 
     //lock mouse on click
@@ -166,6 +164,11 @@ export default class Player extends common.EventSource {
         this.move(moveForward, moveStrafe, moveVertical)
             .updateRaycastAndIndicatorCubeTask()
             .syncCamera();
+        this.world.updateLoadedChunks(
+          this.scene, this.game.manager, 
+          this.position.x, this.position.z,
+          this.game.options.renderDist
+        );
       }
     });
 
