@@ -59,6 +59,32 @@ export default class World {
       Math.floor(z / this.chunkSize)
     )];
   }
+  _getChunkAndCoords(x, y, z) {
+    return {
+      chunk: this.getChunk(
+        Math.floor(x / this.chunkSize),
+        Math.floor(z / this.chunkSize),
+      ),
+      x: Math.floor(common.mod(x, this.chunkSize)),
+      y: Math.floor(y),
+      z: Math.floor(common.mod(z, this.chunkSize)),
+    }
+  }
+  setBlock(x, y, z, block) {
+    const data = this._getChunkAndCoords(x, y, z);
+    data.chunk.chunk.setBlock(data.x, data.y, data.z, block);
+    return this;
+  }
+  setBlockAndUpdateMesh(x, y, z, block, scene) {
+    const data = this._getChunkAndCoords(x, y, z);
+    data.chunk.chunk.setBlock(data.x, data.y, data.z, block);
+    this.updateChunkMesh(scene, data.chunk.x, data.chunk.z);
+    return this;
+  }
+  getBlock(x, y, z) {
+    const data = this._getChunkAndCoords(x, y, z);
+    return data.chunk.chunk.getBlock(data.x, data.y, data.z);
+  }
   //TODO
   updateLoadedChunks(scene, blocks, xPos, zPos, renderDist, force){
     const x = Math.floor(xPos / this.chunkSize);

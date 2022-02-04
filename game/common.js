@@ -1,3 +1,10 @@
+export const VEC2_ONE = new THREE.Vector2(1, 1);
+export const VEC3_ONE = new THREE.Vector3(1, 1, 1);
+export const VEC2_ZERO = new THREE.Vector2(0, 0);
+export const VEC3_ZERO = new THREE.Vector3(0, 0, 0);
+export const VEC3_UP = new THREE.Vector3(0, 1, 0);
+export const PI_2 = Math.PI / 2;
+
 export class EventSource extends Object {
   constructor(...args) {
     super(...args);
