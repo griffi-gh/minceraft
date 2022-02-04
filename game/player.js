@@ -36,7 +36,13 @@ export default class Player extends common.EventSource {
     }
 
     this.syncCamera();
-    if(options.controls ?? true) this.initControls();
+    this.initEvents();
+    if(options.controls ?? true) {
+      this.initControls();
+    }
+  }
+  initEvents() {
+    this.createEvents('player-moved');
   }
   syncCamera() {
     if(!this.camera) return this;
@@ -77,24 +83,27 @@ export default class Player extends common.EventSource {
     if(vertical) {
       this.position.y += vertical;
     }
+    this.triggerEvent('player-moved');
     return this;
   }
   updateRaycast() {
     _euler.setFromQuaternion(this.rotation);
-    //_raycaster.set(this.position, _euler);
+    //TODO: raycast from player pos, not camera
     _raycaster.setFromCamera(common.VEC2_ZERO, this.camera)
     const intersects = _raycaster.intersectObjects(
       this.world.loadedChunks.map(v => v.sceneMesh),
-      false //recursive
+      false //no recursion
     );
     this.hover.active = !!intersects.length;
     if(intersects.length) {
       const intrs = intersects[0]; //intersection
+      //set block coords
       this.hover.place.set(
         Math.floor(intrs.point.x + intrs.face.normal.x * .5),
         Math.floor(intrs.point.y + intrs.face.normal.y * .5),
         Math.floor(intrs.point.z + intrs.face.normal.z * .5)
       );
+      //break block coords
       this.hover.break.set(
         Math.floor(intrs.point.x - intrs.face.normal.x * .5),
         Math.floor(intrs.point.y - intrs.face.normal.y * .5),
@@ -104,7 +113,7 @@ export default class Player extends common.EventSource {
     return this;
   }
   updateIndicatorCube() {
-    //todo some sort of animation?
+    //todo: some sort of animation?
     if(this.hover.active) {
       this.cube.position.set(
         this.hover.place.x + .5,
@@ -161,15 +170,30 @@ export default class Player extends common.EventSource {
       if(keys.KeyA) { moveStrafe -= spd; }
       if(keys.KeyD) { moveStrafe += spd; }
       if(moveForward || moveStrafe || moveVertical) {
-        this.move(moveForward, moveStrafe, moveVertical)
-            .updateRaycastAndIndicatorCubeTask()
-            .syncCamera();
-        this.world.updateLoadedChunks(
-          this.scene, this.game.manager, 
-          this.position.x, this.position.z,
-          this.game.options.renderDist
-        );
+        this.move(moveForward, moveStrafe, moveVertical);
       }
+    });
+
+    let wasUnderWater = false;
+    this.onEvent('player-moved', () => {
+      this.world.updateLoadedChunks(
+        this.scene, this.game.manager, 
+        this.position.x, this.position.z,
+        this.game.options.renderDist
+      );
+      this.syncCamera()
+          .updateRaycastAndIndicatorCubeTask();
+      const isUnderWater = this.world.getBlock(
+        Math.floor(this.position.x),
+        Math.floor(this.position.y),
+        Math.floor(this.position.z)
+      )?.id === 'water';
+      if(isUnderWater != wasUnderWater) {
+        this.world.material.forEach(v => {
+          v.color = new THREE.Color(isUnderWater ? 0x4a4aff : 0xffffff);
+        })
+      }
+      wasUnderWater = isUnderWater;
     });
 
     this.game.onEvent('click', () => {
@@ -178,11 +202,12 @@ export default class Player extends common.EventSource {
       this.updateRaycastAndIndicatorCubeTask();
     })
     this.game.onEvent('click-r', () => {
+      this.updateRaycastAndIndicatorCube();
       const v = this.hover.place;
       const Block = this.game.manager.getById('dirt'); //todo this.game.manager => this.blocks
       this.world.setBlockAndUpdateMesh(v.x, v.y, v.z, new Block(), this.scene);
       this.updateRaycastAndIndicatorCubeTask();
-    })
+    });
 
     //highlight cube
     const geometry = new THREE.BoxGeometry(1,1,1);
