@@ -85,80 +85,77 @@ export class BlockTypeManager {
 
 // Built in blocks
 
-
 class GrassBlock extends Block {
-  static name = 'Grass';
-  static id = 'grass';
-  static uv = {
+  static get name() { return 'Grass' }
+  static get id() { return 'grass' }
+  static get uv() { return {
     top:    common.uv( 2, 0, TEX_UV_W, TEX_UV_H),
     bottom: common.uv(18, 1, TEX_UV_W, TEX_UV_H),
     left:   common.uv( 3, 0, TEX_UV_W, TEX_UV_H),
     right:  common.uv( 3, 0, TEX_UV_W, TEX_UV_H),
     front:  common.uv( 3, 0, TEX_UV_W, TEX_UV_H),
     back:   common.uv( 3, 0, TEX_UV_W, TEX_UV_H),
-  };
-  static material = 0;
+  }}
 }
 builtIn.push(GrassBlock);
 
 class DirtBlock extends Block {
-  static name = 'Dirt';
-  static id = 'dirt';
-  static uv = {
+  static get name() { return 'Dirt' }
+  static get id() { return 'dirt' }
+  static get uv() { return {
     top:    common.uv(18, 1, TEX_UV_W, TEX_UV_H),
     bottom: common.uv(18, 1, TEX_UV_W, TEX_UV_H),
     left:   common.uv(18, 1, TEX_UV_W, TEX_UV_H),
     right:  common.uv(18, 1, TEX_UV_W, TEX_UV_H),
     front:  common.uv(18, 1, TEX_UV_W, TEX_UV_H),
     back:   common.uv(18, 1, TEX_UV_W, TEX_UV_H),
-  };
-  static material = 0;
+  }}
 }
 builtIn.push(DirtBlock);
 
 class GlassBlock extends Block {
-  static name = 'Glass';
-  static id = 'glass';
-  static uv = {
+  static get name() { return 'Glass' }
+  static get id() { return 'glass' }
+  static get material() { return 1 }
+  static get noDrop() { return 1 }
+  static get uv() { return {
     top:    common.uv(24, 4, TEX_UV_W, TEX_UV_H),
     bottom: common.uv(24, 4, TEX_UV_W, TEX_UV_H),
     left:   common.uv(24, 4, TEX_UV_W, TEX_UV_H),
     right:  common.uv(24, 4, TEX_UV_W, TEX_UV_H),
     front:  common.uv(24, 4, TEX_UV_W, TEX_UV_H),
     back:   common.uv(24, 4, TEX_UV_W, TEX_UV_H),
-  };
-  static material = 1;
+  }}
 }
 builtIn.push(GlassBlock);
 
 class WaterBlock extends Block {
-  static name = 'Water';
-  static id = 'water';
-  static liquid = true;
-  static uv = {
+  static get name() { return 'Water' }
+  static get id() { return 'water' }
+  static get liquid() { return true }
+  static get material() { return 1 }
+  static get uv() { return {
     top:    common.uv(16, 11, TEX_UV_W, TEX_UV_H),
     bottom: common.uv(16, 11, TEX_UV_W, TEX_UV_H),
     left:   common.uv(16, 11, TEX_UV_W, TEX_UV_H),
     right:  common.uv(16, 11, TEX_UV_W, TEX_UV_H),
     front:  common.uv(16, 11, TEX_UV_W, TEX_UV_H),
     back:   common.uv(16, 11, TEX_UV_W, TEX_UV_H),
-  };
-  static material = 1;
+  }}
 }
 builtIn.push(WaterBlock);
 
 class BedrockBlock extends Block {
-  static name = 'Bedrock';
-  static id = 'bedrock';
-  static breakable = false;
-  static uv = {
+  static get name() { return 'Bedrock' }
+  static get id() { return 'bedrock' }
+  static get breakable() { return false }
+  static get uv() { return {
     top:    common.uv(0, 1, TEX_UV_W, TEX_UV_H),
     bottom: common.uv(0, 1, TEX_UV_W, TEX_UV_H),
     left:   common.uv(0, 1, TEX_UV_W, TEX_UV_H),
     right:  common.uv(0, 1, TEX_UV_W, TEX_UV_H),
     front:  common.uv(0, 1, TEX_UV_W, TEX_UV_H),
     back:   common.uv(0, 1, TEX_UV_W, TEX_UV_H),
-  };
-  static material = 0;
+  }}
 }
 builtIn.push(BedrockBlock);

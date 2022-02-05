@@ -87,12 +87,16 @@ export default class World {
     if(xDir || zDir) {
       const nChunkX = data.chunk.x + xDir, 
             nChunkZ = data.chunk.z + zDir;
-      console.log(`Rebuild neighbor chunk ${nChunkX} ${nChunkZ} (offset ${xDir} ${zDir})`)
-      const neighbor = this.getChunk(nChunkX, nChunkZ);
-      if(neighbor) {
-        neighbor.chunk.invalidateMesh();
-        this.updateChunkMesh(scene, nChunkX, nChunkZ);
+      const fuckChunk = (x, z)=> {
+        console.log(`Rebuilding neighbor chunk ${nChunkX} ${nChunkZ} (offset ${xDir} ${zDir})...`);
+        const neighbor = this.getChunk(x, z);
+        if(neighbor) {
+          neighbor.chunk.invalidateMesh();
+          this.updateChunkMesh(scene, x, z);
+        }
       }
+      if(nChunkX) fuckChunk(nChunkX, data.chunk.z);
+      if(nChunkX) fuckChunk(data.chunk.x, nChunkZ);
     }
     return this;
   }
